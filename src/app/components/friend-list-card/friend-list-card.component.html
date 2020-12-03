@@ -1,0 +1,47 @@
+<ng-container>
+  <div *ngIf="user"
+       class="friend-card"
+       fxLayout="row"
+       fxLayoutGap="15px"
+       fxLayoutAlign="start center"
+       fxFlex="100%"
+       [matMenuTriggerFor]="friendMenu"
+       [ngClass]="status_class"
+  >
+    <button mat-mini-fab color="warn" style="transform: scale(0.8)">{{short_name}}</button>
+    <!--  <mat-icon color="warn" class="avatar-icon">face</mat-icon>-->
+    <div fxLayout="column" fxLayoutAlign="start start">
+      <div class="user-name" *ngIf="friend_card_info">{{friend_card_info.nickname}} </div>
+      <div *ngIf="option === 'users' && friend_card_info" style="font-size: 10px; color: dimgray">{{friend_card_info.last_login}}</div>
+    </div>
+    <span fxFlex></span>
+<!--    <div class="notification"></div>-->
+    <mat-icon *ngIf="read_msg === false" class="notification-icon">sms</mat-icon>
+<!--    <div class="dot-status" [ngClass]="status_class"></div>-->
+    <mat-menu #friendMenu="matMenu"  xPosition="before">
+      <span>
+        <button *ngIf="option === 'friends'" mat-menu-item (click)="doSelectChat()">
+          <mat-icon class="menu-icon">{{'chat'}}</mat-icon>
+          <span>{{'Chat'}}</span>
+        </button>
+<!--        call -->
+        <button *ngIf="option === 'friends'" mat-menu-item (click)="doCallFriend()">
+          <mat-icon class="menu-icon">{{'call'}}</mat-icon>
+          <span>{{call_status}}</span>
+        </button>
+        <button mat-menu-item (click)="doOpenProfile()">
+          <mat-icon class="menu-icon">person</mat-icon>
+          <span>Profile</span>
+        </button>
+<!--        remove friend-->
+        <button *ngIf="option !== 'groups'" mat-menu-item (click)="doActionFriend()">
+          <mat-icon class="menu-icon">{{text_icon}}</mat-icon>
+          <span>{{text_action}}</span>
+        </button>
+        <button mat-menu-item>Coming soon...</button>
+      </span>
+    </mat-menu>
+  </div>
+</ng-container>
+
+

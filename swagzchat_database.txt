@@ -1,0 +1,58 @@
+\\\\\\\\\\\\\\\\\\\\\\\ DATABASE STRUCTURE OF SWAGZCHAT ////////////////////////
+SYMBOL MEANING 
+	? = optional
+	X = unchangeable
+	+ = changeable
+
+_________________________________________________________________________
+- users (uid is primary key)
+	- nickname (?)
+	- avatar (?) [number of image]
+	- information (?)
+	- email (X)
+	- uid (X)
+	- status (+)
+	- last_login (+)
+
+
+- chat logs (if doesnt have then create new each chat)
+	- owner uid (uid is primary key) for owner chat
+		- chat with who? [friend's uid]
+			- index (start at 0)
+				- message
+					* sender 
+					* msg				
+				- date and time
+
+- group chat logs (if doesnt have then create new each chat)
+	- group chat id
+		- index (start at 0)
+			- message
+				* sender 
+				* msg				
+			- date and time
+
+- friends (add uid of users to this colection)
+	- uid (uid of user is primary key) for owner
+		* multiple of uid of friend
+			- nickname (+)
+			- avatar (?)
+			- information (?)
+			- email (X)
+			- uid (X)
+			- status (+)
+			- last_login (+)
+
+
+- groups (add uid of users to this colection with more than 2 people)
+	- uid (uid of user is primary key)
+		* group_id
+			- group_name
+			* multiple of uid of users with more than 2 people
+				- nickname (+)
+				- avatar (?)
+				- information (?)
+				- email (X)
+				- uid (X)
+				- status (+)
+				- last_login (+)

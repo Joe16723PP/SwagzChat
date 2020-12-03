@@ -1,0 +1,53 @@
+.friend-card {
+  margin: 3px;
+  padding: 5px 3px;
+  background-color: transparent;
+  border-radius: 10px;
+  border: 1px solid #969696;
+}
+
+.friend-card.online {
+  border: 1px solid #36FF97;
+}
+.friend-card.offline {
+  border: 1px solid #969696;
+}
+.friend-card:hover {
+  transition: 0.2s;
+  filter: brightness(115%);
+  transform: scale(1.025);
+  cursor: pointer;
+}
+.user-name {
+  color: #CACACA;
+  font-size: 0.8rem;
+}
+.dot-status {
+  margin: 0.6rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px 1px rgba(0,0,0,0.5);
+}
+.dot-status.online {
+  background-color: #36FF97;
+}
+.dot-status.offline {
+  background-color: #656565;
+}
+.avatar-icon {
+  padding: 0 0.6rem;
+  transform: scale(1.4);
+}
+.menu-icon {
+  padding: 0 4px;
+}
+
+.notification-icon {
+  transform: scale(0.8);
+  animation: crescendo 0.5s alternate infinite ease-in;
+}
+@keyframes crescendo {
+  0%   {transform: scale(0.8);}
+  100% {transform: scale(1);}
+}

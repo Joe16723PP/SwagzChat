@@ -1,0 +1,24 @@
+<div fxLayout="column" fxLayoutAlign="center center">
+  <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1rem" *ngIf="!isAccept" style="height: 100vh;">
+    <mat-spinner></mat-spinner>
+    <h5 *ngIf="!isAccept">Connecting....</h5>
+    <h5 *ngIf="friend_name">Calling to {{friend_name}}</h5>
+  </div>
+  <div fxLayout="row" fxLayoutGap="2rem" fxLayoutAlign="center end">
+    <video class="friendVideo" #friendVideo [controls]="isAccept"></video>
+    <video class="myVideo" #myVideo [controls]="isAccept" [muted]="isAccept"></video>
+  </div>
+
+<!--  <button mat-stroked-button (click)="dosendMsg()">test connection</button>-->
+
+<!--  <p>my : {{my_peer}}</p>-->
+<!--  <p>friend : {{friend_peer}}</p>-->
+<!--  <p>message: from friend</p>-->
+<!--  <div *ngFor="let msg of test_get_msg">-->
+<!--    {{msg}}-->
+<!--  </div>-->
+
+  <audio #myAudio>
+    <source src='./assets/audio/waitingCall.mp3' type="audio/mp3">
+  </audio>
+</div>

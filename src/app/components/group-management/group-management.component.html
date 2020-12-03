@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>{{title}}</h2>
+<form [formGroup]="create_group_form">
+  <div mat-dialog-content fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="15px">
+    <mat-form-field appearance="outline">
+      <mat-label>Group Name</mat-label>
+      <input matInput id="group_name" placeholder="Group name not accept spacial character" type="text" autocomplete="new-group-name" formControlName="group_name">
+      <mat-icon matSuffix>group</mat-icon>
+          <mat-error *ngIf="create_group_form.get('group_name').invalid && create_group_form.get('group_name').touched">invalid group name</mat-error>
+    </mat-form-field>
+    <mat-divider></mat-divider>
+    <p>Add friends to your group</p>
+    <div *ngFor="let friend of friend_list; let i = index" fxLayout="row" fxLayoutAlign="start center">
+      <app-friend-list-card [user]="friend" [option]="'groups'" fxFlex="35"></app-friend-list-card>
+      <span fxFlex></span>
+      <button *ngIf="friend_add_status[i]" mat-stroked-button color="primary" (click)="doAddFriendToGroup(friend, i)">
+        <mat-icon>add_circle</mat-icon>
+        Add
+      </button>
+      <button *ngIf="!friend_add_status[i]" mat-stroked-button color="warn" (click)="doRemoveFriendOfGroup(friend, i)">
+        <mat-icon>remove_circle</mat-icon>
+        Remove
+      </button>
+    </div>
+    <br>
+  </div>
+  <mat-divider></mat-divider>
+  <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end center">
+    <button mat-stroked-button matDialogClose color="warn">CANCEL</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="create_group_form.invalid || this.friend_to_group.length === 0">CREATE GROUP</button>
+  </div>
+</form>

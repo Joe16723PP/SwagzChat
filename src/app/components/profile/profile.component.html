@@ -1,0 +1,51 @@
+<!--<h5 mat-dialog-title>User Profile</h5>-->
+<div mat-dialog-content class="dialog-profile">
+  <div fxLayout="column" fxFlex="100%" fxLayoutGap="2rem">
+    <div fxLayout="row" fxLayoutAlign="space-between start"  fxLayoutGap="2rem">
+<!--      <span></span>-->
+      <img class="profile-avatar" src="./assets/images/avatars/santa-claus.png" alt="made by www.flaticon.com">
+      <div fxLayout="column" fxLayoutGap="0.1rem">
+        <div class="display-name">
+          <mat-form-field appearance="outline" *ngIf="isEdit">
+            <mat-label>DISPLAY NAME</mat-label>
+            <input type="text" matInput [(ngModel)]="nick_name">
+          </mat-form-field>
+          <div *ngIf="!isEdit">{{nick_name}}</div>
+        </div>
+        <div class="display-email">{{email}}</div>
+        <mat-divider></mat-divider>
+        <br>
+        <div class="information-detail">
+          <mat-form-field appearance="outline">
+            <mat-label>INFORMATION</mat-label>
+            <textarea #infoTextArea matInput [disabled]="!isEdit" [(ngModel)]="information" (scroll)="autoGrow()">
+            </textarea>
+            <!--            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam semper diam at erat pulvinar, at pulvinar felis blandit.-->
+            <!--          Vestibulum volutpat tellus diam, consequat gravida libero rhoncus ut.-->
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="0px">
+  <button mat-stroked-button color="warn" mat-dialog-close>CLOSE</button>
+  <span fxFlex></span>
+  <button mat-raised-button color="primary" (click)="doEditInformation()" *ngIf="user_data.isMe">
+    <div *ngIf="!isEdit">
+      EDIT
+    </div>
+    <div *ngIf="isEdit">
+      SAVE
+    </div>
+  </button>
+  <button  mat-raised-button color="primary" (click)="doAddOrRemove()" *ngIf="!user_data.isMe">
+    <div *ngIf="!isFriend">
+      ADD FRIEND
+    </div>
+    <div *ngIf="isFriend">
+      UN FRIEND
+    </div>
+  </button>
+</div>

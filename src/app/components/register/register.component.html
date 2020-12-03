@@ -1,0 +1,29 @@
+<div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center center">
+  <mat-icon class="icon" aria-label="icon chat">face</mat-icon>
+  <h1>Register to SwagzChat</h1>
+</div>
+<div mat-dialog-content>
+  <form [formGroup]="register_form" (ngSubmit)="onSubmit()">
+    <div fxLayout="column" fxLayoutGap="3px" fxLayoutAlign="center stretch">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput id="reg_email" placeholder="Email" type="email" formControlName="email" autocomplete='new-email'>
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="register_form.get('email').invalid && register_form.get('email').touched">invalid email</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput id="reg_pwd" placeholder="Password at least 8 characters" type="password" formControlName="password" autocomplete='new-password'>
+        <mat-icon matSuffix>lock</mat-icon>
+        <mat-error *ngIf="register_form.get('password').invalid && register_form.get('password').touched">not accept spacial and at least 8 characters</mat-error>
+      </mat-form-field>
+      <div align="center">
+        <mat-spinner *ngIf="isSubmitting" [diameter]="50"></mat-spinner>
+        <p *ngIf="error_msg">{{error_msg}}</p>
+        <br>
+      </div>
+      <button mat-stroked-button [disabled]="register_form.invalid && isSubmitting" (click)="onSubmit()">Register</button>
+    </div>
+  </form>
+</div>
+<br>

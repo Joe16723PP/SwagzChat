@@ -1,0 +1,33 @@
+<div class="group-card"
+     fxLayout="row"
+     fxLayoutGap="15px"
+     fxLayoutAlign="start center"
+     fxFlex="100%"
+     [matMenuTriggerFor]="groupMenu"
+>
+<!--    <mat-icon color="warn" class="avatar-icon">face</mat-icon>-->
+  <div fxLayout="row" fxLayoutAlign="space-between center" fxFlex="100%" fxFlexOffset="10">
+    <div class="group-name">{{group.group_name}}</div>
+    <div class="member-number">({{group.users.length}})</div>
+  </div>
+
+  <mat-menu #groupMenu="matMenu"  xPosition="before">
+      <button mat-menu-item (click)="doSelectChat()">
+        <mat-icon class="menu-icon">{{'chat'}}</mat-icon>
+        <span>{{'Chat'}}</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon class="menu-icon">edit</mat-icon>
+        <span>Manage Group</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon class="menu-icon">exit_to_app</mat-icon>
+        <span>Leave Group</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon class="menu-icon">delete_forever</mat-icon>
+        <span>Remove Group</span>
+      </button>
+      <button mat-menu-item>Coming soon...</button>
+  </mat-menu>
+</div>

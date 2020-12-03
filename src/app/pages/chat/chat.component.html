@@ -1,0 +1,155 @@
+<div class="container" fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+  <div fxLayout="column" fxLayoutAlign="space-around stretch" fxFlex="20%">
+    <div align="center">
+      <mat-spinner *ngIf="!friend_list"></mat-spinner>
+    </div>
+    <mat-card *ngIf="friend_list">
+      <mat-card-content fxLayout="column" fxLayoutGap="10px">
+        <mat-accordion>
+
+          <mat-expansion-panel [expanded]="isFriendChat">
+            <mat-expansion-panel-header class="right-aligned-header">
+              <mat-panel-title>
+                Friends
+              </mat-panel-title>
+              <mat-panel-description>
+                <mat-icon>emoji_people</mat-icon>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div *ngFor="let user of friend_list">
+<!--              <p>{{user.uid}}</p>-->
+              <app-friend-list-card [user]="user"
+                                    [option]="'friends'"
+                                    (selected_chat)="getCurrentChat($event, true)"
+              ></app-friend-list-card>
+            </div>
+<!--            end content-->
+          </mat-expansion-panel>
+
+          <mat-expansion-panel [expanded]="!isFriendChat">
+            <mat-expansion-panel-header class="right-aligned-header">
+              <mat-panel-title>
+                Groups
+              </mat-panel-title>
+              <mat-panel-description>
+                <mat-icon>group</mat-icon>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div fxLayout="column" fxLayoutGap="10px">
+              <div *ngFor="let group of group_list">
+                <app-group-card [group]="group" (selected_chat)="getCurrentChat($event, false)"></app-group-card>
+              </div>
+              <div fxLayout="column" fxLayoutAlign="start stretch">
+                <button mat-stroked-button (click)="doCreateGroup('create')">
+                  <mat-icon>add</mat-icon>
+                  Create Group
+                </button>
+              </div>
+            </div>
+          </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header class="right-aligned-header">
+              <mat-panel-title>
+                My profile
+              </mat-panel-title>
+              <mat-panel-description>
+                <mat-icon>person</mat-icon>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div fxLayout="column" fxLayoutGap="10px">
+              <p>display profile</p>
+            </div>
+          </mat-expansion-panel>
+
+        </mat-accordion>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <div fxLayout="column" fxLayoutAlign="space-around stretch" fxFlex="60%">
+    <mat-card>
+      <mat-card-title>
+        <div *ngIf="current_chat && isFriendChat">
+          {{current_chat.email}}
+        </div>
+        <div *ngIf="current_group_chat && !isFriendChat">
+          {{current_group_chat.group_name}}
+        </div>
+      </mat-card-title>
+      <mat-card-content fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="space-around stretch">
+        <div class="chat-log" #scrollMe fxLayout="column" fxLayoutGap="10px" (scroll)="onScroll()">
+          <div *ngFor="let message of chat_log" fxLayout="column">
+            <div *ngIf="message.sender !== user_info.email">
+<!--              <p>{{message.sender}}</p>-->
+              <div class="friend-chat" fxLayout="row" fxLayoutGap="12px" fxLayoutAlign="start end">
+                <button mat-mini-fab color="warn">{{initData.getShortName(message.sender).toUpperCase()}}</button>
+                <div fxLayout="column" fxLayoutGap="4px">
+                  <div class="msg-owner" align="start">{{message.sender.substring(0,message.sender.search('@'))}}</div>
+                  <div class="msg-card aligned-left" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="1px">
+                    <!--                <p>{{message.sender}}</p>-->
+                    <div fxLayout="row" fxLayoutAlign="end center">
+                      <p class="displayed-msg">{{message.msg}}</p>
+                    </div>
+                    <div class="date_time" fxLayout="row" fxLayoutAlign="start end">
+                      <div class="chat-date">
+                        {{message.date_time}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="message.sender === user_info.email">
+              <div class="user-chat" fxLayout="row" fxLayoutAlign="start end">
+                <span fxFlex></span>
+                <div fxLayout="column" fxLayoutGap="2px">
+<!--                  <div class="msg-owner" align="start">-->
+<!--                    {{message.sender.substring(0,message.sender.search('@'))}}-->
+<!--                  </div>-->
+                  <div class="msg-card aligned-right" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="1px">
+                    <div fxLayout="row" fxLayoutAlign="start center">
+                      <p class="displayed-msg">{{message.msg}}</p>
+                    </div>
+                    <div class="date_time" fxLayout="row" fxLayoutAlign="end end">
+                      <div class="chat-date">
+                        {{message.date_time}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--              <button mat-mini-fab color="primary">US</button>-->
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input" fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="center start">
+          <span fxFlex></span>
+          <mat-form-field appearance="outline" fxFlex="60%">
+            <mat-label>message</mat-label>
+            <input type="text" id="msg" matInput #msg (keyup.enter)="doSendText(msg.value); msg.value = ''">
+            <span matSuffix>
+              <mat-icon>edit</mat-icon>
+            </span>
+          </mat-form-field>
+          <button mat-fab color="primary" (click)="doSendText(msg.value); msg.value = ''">
+            <mat-icon>send</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <div fxLayout="column" fxLayoutAlign="space-around stretch" fxFlex="20%">
+    <div align="center">
+      <mat-spinner *ngIf="user_list_not_in_friend.length === 0"></mat-spinner>
+    </div>
+    <mat-card *ngIf="user_list_not_in_friend.length !== 0">
+      <mat-card-title>Users</mat-card-title>
+      <mat-card-content fxLayout="column">
+        <div *ngFor="let user of user_list_not_in_friend">
+<!--          <p>{{user.uid}}</p>-->
+          <app-friend-list-card [user]="user" [option]="'users'"></app-friend-list-card>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

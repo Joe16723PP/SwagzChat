@@ -1,0 +1,37 @@
+<div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="center center">
+  <mat-icon class="icon" aria-label="icon chat">face</mat-icon>
+  <h1>Login to SwagzChat</h1>
+</div>
+<div mat-dialog-content>
+  <form [formGroup]="login_form" (ngSubmit)="onSubmit()">
+    <div fxLayout="column" fxLayoutGap="3px" fxLayoutAlign="center stretch">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput id="reg_email" placeholder="Email" type="email" formControlName="email" autocomplete='new-email'>
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="login_form.get('email').invalid && login_form.get('email').touched">invalid email</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput id="reg_pwd" placeholder="Password at least 8 characters" type="password" formControlName="password" autocomplete='new-password'>
+        <mat-icon matSuffix>lock</mat-icon>
+        <mat-error *ngIf="login_form.get('password').invalid && login_form.get('password').touched">not accept spacial and at least 8 characters</mat-error>
+      </mat-form-field>
+      <div align="center">
+        <mat-spinner *ngIf="isSubmitting" [diameter]="50"></mat-spinner>
+        <p *ngIf="error_msg">{{error_msg}}</p>
+        <br>
+      </div>
+      <button mat-raised-button color="primary" [disabled]="login_form.invalid && isSubmitting" (click)="onSubmit()">LOGIN</button>
+    </div>
+  </form>
+</div>
+<div>
+  <div fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="10px">
+    <p align="center">or</p>
+    <button class="custom-btn facebook" (click)="doClickSocial('facebook')">FACEBOOK</button>
+    <button class="custom-btn gmail" (click)="doClickSocial('gmail')">GMAIL</button>
+<!--    <firebase-ui></firebase-ui>-->
+  </div>
+</div>
+<br>

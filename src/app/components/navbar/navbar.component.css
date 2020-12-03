@@ -1,0 +1,33 @@
+mat-toolbar {
+  overflow: hidden;
+  position: fixed;
+  z-index: 10;
+  width: 100%  !important;
+  top: 0;
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,0.5);
+  padding: 0 6rem;
+}
+.app-title {
+  font-size: 14px;
+  font-weight: bold;
+}
+.app-title:hover {
+  cursor: pointer;
+}
+.icon {
+  padding: 0 16px;
+  margin: 0 auto;
+  transform: scale(1.8);
+}
+.icon:hover {
+  cursor: pointer;
+  transition: 0.2s;
+  transform: scale(2);
+  filter: brightness(50%);
+}
+
+button {
+  transform: scale(0.8);
+  text-transform: uppercase;
+  font-weight: lighter;
+}

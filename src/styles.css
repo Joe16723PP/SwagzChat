@@ -1,1 +1,75 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body {
+  background-color: #373737;
+}
+body {
+  /*transform: scale(0.85);*/
+  margin: 0 0 0 0;
+  font-family: Roboto,
+  "Helvetica Neue", sans-serif;
+  color: white;
+}
+
+.container {
+  margin: 6rem 6rem;
+}
+
+.custom-btn {
+  color: white;
+  padding: 0.8rem;
+  min-width: 5rem;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration:none;
+  border: none;
+  outline: none;
+  font-weight: bolder;
+}
+
+.custom-btn.facebook {
+  background-color: #3b5998;
+}
+.custom-btn.gmail {
+  background-color: #b23121;
+}
+
+.custom-btn:hover {
+  transition: 0.2s;
+  filter: brightness(115%);
+  cursor: pointer;
+}
+
+.right-aligned-header > .mat-content {
+  justify-content: space-between;
+}
+
+.mat-content > mat-panel-title, .mat-content > mat-panel-description {
+  flex: 0 0 auto;
+}
+
+.profile-default {
+  border-radius: 50%;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0.4rem;
+  box-shadow: 0 2px 4px 1px rgba(0,0,0,0.5);
+  background-color: #373737;
+  /*border: 1px solid white;*/
+  color: white;
+  text-align: center;
+  margin: 0 auto;
+  font-size: 0.8rem;
+  font-weight: lighter;
+  text-transform: uppercase;
+}
+
+.profile-default:hover {
+  filter: brightness(115%);
+  transform: scale(1.15);
+  transition: 0.2s;
+  cursor: pointer;
+  color: #FF2682;
+}

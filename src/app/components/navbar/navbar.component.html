@@ -1,0 +1,17 @@
+<mat-toolbar color="primary" *ngIf="!isHideNavBar" fxLayout="row">
+  <span>
+    <div fxLayout="row" fxLayoutGap="20px" fxLayoutAlign="start start">
+      <mat-icon class="icon" aria-hidden="false" aria-label="icon chat" routerLink="/">face</mat-icon>
+      <div class="app-title" routerLink="/">SwagzChat</div>
+    </div>
+  </span>
+  <span fxFlex></span>
+<!--  <img src="assets/images/avatars/avatar03.png" alt="test img">-->
+  <button *ngIf="!isCanActivate" mat-button (click)="openDialog('login')">LOGIN</button>
+  <button *ngIf="!isCanActivate" mat-button (click)="openDialog('register')">REGISTER</button>
+<!--  <div *ngIf="isCanActivate" class="profile-default">{{short_name}}</div>-->
+  &nbsp;
+  <button *ngIf="isCanActivate" mat-button (click)="doOpenProfile()" >{{user_info.email}}</button>
+  <button *ngIf="isCanActivate" mat-button (click)="logOut()">LOG OUT</button>
+  <button mat-button (click)="openDialog('help')">HELP</button>
+</mat-toolbar>

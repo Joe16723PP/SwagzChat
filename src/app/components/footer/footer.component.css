@@ -1,0 +1,5 @@
+mat-toolbar {
+  overflow: hidden;
+  position: fixed;
+  bottom: 0;
+}

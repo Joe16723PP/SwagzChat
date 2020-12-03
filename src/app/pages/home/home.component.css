@@ -1,0 +1,8 @@
+mat-icon {
+  transform: scale(7);
+  padding: 0 20px;
+}
+
+body {
+  overflow: no-display;
+}

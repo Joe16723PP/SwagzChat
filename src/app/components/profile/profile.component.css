@@ -1,0 +1,51 @@
+.dialog-profile {
+  /*margin: 2rem 2rem;*/
+  width: 400px;
+  min-height: 150px;
+}
+textarea {
+  min-height: 80px;
+}
+.profile-avatar {
+  /*position: absolute;*/
+  /*top: 0px;*/
+  border-radius: 50%;
+  width: 70px !important;
+  height: 70px !important;
+  padding: 0.5rem;
+  background-color: #9F9F9F;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.color-tab {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  background-color: #E22070;
+}
+
+.display-name {
+  font-size: 18px;
+}
+.display-email {
+  font-size: 10px;
+  font-weight: lighter;
+  text-transform: uppercase;
+  color: #969696;
+}
+
+.information-header {
+  font-size: 14px;
+}
+
+.information-detail {
+  font-size: 12px;
+  font-weight: lighter;
+  color: #9F9F9F;
+  width: 200px;
+}
+
+button {
+  transform: scale(0.8);
+}
+
