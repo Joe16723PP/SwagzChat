@@ -1,6 +1,42 @@
 {
   "rules": {
-    ".read": "true",
-    ".write": "true"
+    "users": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['email', 'uid']) && newData.child('uid').val() == $uid && newData.child('email').isString()"
+      }
+    },
+    "friends": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        "$friendUid": {
+          ".write": "auth != null && (auth.uid == $uid || auth.uid == $friendUid)",
+          ".validate": "newData.hasChildren(['uid', 'email']) && newData.child('uid').val() == $friendUid && newData.child('email').isString()"
+        }
+      }
+    },
+    "chat_log": {
+      "$uid": {
+        "$otherUid": {
+          ".read": "auth != null && (auth.uid == $uid || auth.uid == $otherUid)",
+          ".write": "auth != null && (auth.uid == $uid || auth.uid == $otherUid)"
+        }
+      }
+    },
+    "groups": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        "$groupId": {
+          ".write": "auth != null && (auth.uid == $uid || root.child('friends').child($uid).child(auth.uid).exists())"
+        }
+      }
+    },
+    "group_chat_log": {
+      "$groupId": {
+        ".read": "auth != null && root.child('groups').child(auth.uid).child($groupId).exists()",
+        ".write": "auth != null && root.child('groups').child(auth.uid).child($groupId).exists()"
+      }
+    }
   }
 }

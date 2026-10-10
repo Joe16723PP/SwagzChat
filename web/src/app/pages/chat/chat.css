@@ -1,0 +1,16 @@
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+}
+
+h1 {
+  font: var(--mat-sys-headline-small);
+  margin: 0;
+}
+
+main {
+  padding: 8px 24px 24px;
+  max-width: 40rem;
+}
