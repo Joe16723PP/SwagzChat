@@ -20,6 +20,10 @@ export class AuthService {
   constructor() {
     this.readyPromise = new Promise((resolve) => {
       onAuthStateChanged(firebaseAuth, (user) => {
+        const current = this.user();
+        if (this.ready() && current?.uid === user?.uid) {
+          return;
+        }
         this.user.set(user);
         if (!this.ready()) {
           this.ready.set(true);

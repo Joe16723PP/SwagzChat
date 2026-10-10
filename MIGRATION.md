@@ -1,11 +1,10 @@
 # SwagzChat migration checklist
 
 Legacy Angular 8 client stays at the repo root. The new client lives in `web/`.
-Firebase project: `swagzchat-f9a11`.
+Chat data for the new client is stored in MongoDB by the Node service in `server/`.
+`docker compose up --build` starts MongoDB and that service. The Angular app calls `http://127.0.0.1:3000`.
 
-Rules in `database.rules.json` are the cutover rules. They are not deployed yet.
-Deploying them stops anonymous access and stops the legacy app from writing another
-user's profile, which is how the old call popup was signaled.
+The old Firebase project is `swagzchat-f9a11`. The new client does not use it.
 
 Checked items are done in the repo. Deploy, LiveKit, and the chat port are still open.
 
@@ -23,16 +22,19 @@ Checked items are done in the repo. Deploy, LiveKit, and the chat port are still
 
 ## 2. New Angular 22 client
 
+- [x] Docker Compose runs MongoDB, and the Node service in `server/` stores chat
+- [x] The Angular client calls that service instead of Firebase
 - [x] Scaffold `web/` with Angular 22, standalone, zoneless, Vitest, no SSR
-- [x] Call Firebase JS SDK 13 directly (auth state, not `localStorage`)
-- [x] Email and Google sign-in, sign-out, and a route guard
+- [x] Call Firebase JS SDK 13 directly
+- [x] Landing asks for a name and opens chat as that guest. Email and Google sign-in stay unused
 - [x] Guarded `/chat` shell
 - [ ] Point Firebase Hosting at `web/dist/swagz-chat/browser` when the new client replaces the legacy one
 - [ ] Facebook sign-in (needs the Facebook provider enabled on the Firebase project)
-- [ ] Port friends, the people directory, and 1:1 threads
-- [ ] One conversation path, `limitToLast` for the live tail, unsubscribe on thread change
-- [ ] Port groups onto that same conversation model
-- [ ] `onDisconnect` presence, separate from any call flag
+- [x] Friends, people directory, and conversations (own, friend, group). Existing `chat_log` rows stay
+- [x] `limitToLast` for the live tail, and unsubscribe when the thread changes
+- [x] A new group is its own conversation. Friend chats stay as they are
+- [ ] Backfill `chat_log` and `group_chat_log` into conversations
+- [x] `onDisconnect` presence, separate from any call flag
 - [ ] Playwright: sign in, send a message, open a thread
 
 ## 3. Calls

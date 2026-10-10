@@ -1,0 +1,26 @@
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - swagzchat-mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build: ./server
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGO_URL: mongodb://mongo:27017/swagzchat
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  swagzchat-mongo:

@@ -1,16 +1,17 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth.guard';
+import { guestGuard } from './core/guest.guard';
 
 export const routes: Routes = [
   {
-    path: 'login',
-    loadComponent: () => import('./pages/login/login').then((m) => m.Login),
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./pages/landing/landing').then((m) => m.Landing),
   },
   {
     path: 'chat',
-    canActivate: [authGuard],
+    canActivate: [guestGuard],
     loadComponent: () => import('./pages/chat/chat').then((m) => m.Chat),
   },
-  { path: '', pathMatch: 'full', redirectTo: 'chat' },
-  { path: '**', redirectTo: 'chat' },
+  { path: 'login', redirectTo: '' },
+  { path: '**', redirectTo: '' },
 ];
