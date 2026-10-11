@@ -11,7 +11,7 @@
 
 ## 1. Objective
 
-Replace the current plain three-pane chat shell with the polished, trustworthy workspace shown in `reference.png`. The result should make these tasks immediately discoverable:
+Refine the existing three-pane Angular 22 workspace toward the polished, trustworthy composition shown in `reference.png`. Preserve the working live chat features listed in the current implementation baseline; focus the remaining work on the preview fixture and visual differences. The result should make these tasks immediately discoverable:
 
 1. Find and open a conversation.
 2. Read and send messages.
@@ -30,6 +30,7 @@ The rendered screen should resemble the reference in a 1600 × 1000 desktop view
 - Keep the revamp aligned with the `web/` data path. Do not introduce Firebase.
 - Current supported concepts include own, friend, and group conversations; people directory; mutual friendships; message history; unread counts; and online presence.
 - Existing glossary terms in `SwagzChat/GLOSSARY.md` are authoritative. Use “conversation,” “friend,” “group conversation,” “member,” “guest,” and “handle” consistently. Avoid “DM,” “private chat,” “account,” and “channel” for these concepts. The on-screen chip still reads **Demo account**, matching the reference.
+- **Implementation baseline reviewed at commit `210cb20`:** the Angular 22 app already has the desktop/mobile shell, guest and handle display, Chats/People navigation, search, message send/history pagination, unread/read updates, presence, friend actions, group creation, emoji insertion, and disabled call/upload controls. This spec records the target and remaining deltas; do not rebuild those existing features.
 
 ## Settled choices
 
@@ -44,7 +45,7 @@ These choices override a still image where the image and the product rules disag
 7. **The filled Create group button is the enabled style.** Use it only when the name is non-empty and at least two friends are selected. Otherwise the button is disabled and the reason is written next to it. The reference shows the enabled appearance.
 8. **Photographs and read marks are not sign-off requirements.** Avatars are stable initials and colors. Outgoing read marks stay omitted until the service stores that state. The reference’s photos and check marks are illustrations of layout, not data the app must reproduce.
 
-The service may gain the `handle` field and the earlier-message read above. No other schema or route change is part of this revamp.
+The current service already provides profile handles and the earlier-message read above. No schema or route change is part of the remaining visual-fidelity work.
 
 ## 3. Reference screen inventory
 
@@ -203,45 +204,41 @@ Desktop is the fidelity target shown in the image. Preserve the same functions a
 
 ## 9. Milestones
 
-Each milestone ends with a user-visible, reviewable increment. Keep the reference scenario in section 10 as the shared demo data/state for visual reviews. Do not mark a milestone complete based only on source code being present.
+Each milestone ends with a user-visible, reviewable increment. Keep the reference scenario in section 10 as the shared demo data/state for visual reviews. Preserve existing live features; milestones below focus on the remaining reference-specific work.
 
 ### Milestone 0 — Baseline and reference fixture
 
-- Confirm the `web/` client, existing service contracts, current routes, and current build/test commands.
-- Create an isolated deterministic demo fixture based on the reference scenario. It must not create or overwrite persistent real-user data.
-- Capture the current `web/` state before UI changes and record any service behaviors that cannot yet support the reference.
-- **Exit check:** reference image and fixture are available to the implementer; target files and unsupported actions are identified; the only planned service additions are `handle` and the earlier-message read.
+- Confirm the current `web/` implementation and the visual gaps listed in `visual-fidelity-handoff.md`.
+- Add a development-only deterministic preview fixture without creating or overwriting guest, API, or MongoDB data.
+- **Exit check:** the reference image and fixture are available; live `/chat` behavior remains unchanged; the preview can be refreshed repeatedly without side effects.
 
 ### Milestone 1 — Reference-matched desktop shell
 
-- Implement the global header, left navigation/conversation list, central conversation, and right Friends/Create group column.
-- Apply the reference type, color, card, border, avatar, spacing, and action hierarchy.
-- Use the demo fixture to render the named people and conversation rows from section 10.
-- **Exit check:** a 1600 × 1000 screenshot matches `reference.png` on geometry, labels, and selection, with Notes pinned first, initials instead of photographs, no read marks, and **Create group** disabled while the name is empty. No key region is clipped.
+- Keep the existing three-column shell and refine spacing, panel/card treatment, conversation-row alignment, group-member controls, and icon consistency.
+- Render the exact conversation and friends fixtures from section 10 in preview mode, with **Notes** pinned first and Mina selected.
+- **Exit check:** at 1600 × 1000, the screenshot matches the reference's structure and density, with the settled differences in section 2 (Notes, initials, no receipts, disabled empty group form).
 
 ### Milestone 2 — Real data and core conversation interactions
 
-- Replace fixture-only rendering with service state for conversations, profiles (including `handle`), friendship, messages, presence, and unread counts.
-- Add the earlier-message read and **Load earlier messages**.
-- Implement conversation selection, list preview/time/unread state, read updates, and send/retry behavior.
-- Keep the fixture available only in an explicit demo/review mode; do not mix it into persistent data.
-- **Exit check:** a user can open and use Notes and friend/group conversations from service-backed data; loading and error states recover clearly; unread state updates correctly.
+- Keep the reference preview read-only and service-independent; keep the ordinary workspace backed by current live service state.
+- Recheck current search, conversation selection, send/retry, read/unread, presence, friend, group, and pagination interactions after visual changes.
+- **Exit check:** no existing live interaction has been replaced by fixture-only behavior; demo preview performs no API/database mutations.
 
 ### Milestone 3 — People and group workflow
 
-- Implement People/friends search, distinguishable handles, presence text, Message, Add, Unfriend with undo/confirmation, and group-member selection.
-- Implement named group creation with validation, failure preservation, success feedback, and navigation into the new group.
-- **Exit check:** all supported people and group actions work against the existing API and the reference right panel remains visually consistent.
+- Preserve People/friends search, stored handles, presence, Message, Add, Unfriend confirmation, and group creation handlers.
+- Style the right rail as separate Friends and Create group cards; style member toggles and selected chips while preserving current validation.
+- **Exit check:** no browser-default group-member button remains; live friend and group actions still use their existing service handlers.
 
 ### Milestone 4 — Responsive and accessible completion
 
-- Implement pane navigation at mobile/tablet widths, preserve drafts and selected conversations, and keep the composer reachable.
-- Finish keyboard/focus behavior, accessible names, live announcements, reduced motion, and non-color state indicators.
-- **Exit check:** the required viewport set is usable without horizontal page scrolling and core flows work without a pointer.
+- Preserve the current responsive breakpoints and pane navigation; tune only visual regressions caused by the desktop styling.
+- Verify keyboard/focus states and accessible labels for any new preview controls.
+- **Exit check:** the existing layout remains usable at required viewports, with no horizontal page scrolling.
 
 ### Milestone 5 — Reference sign-off and handoff
 
-- Compare the deterministic demo at 1600 × 1000 against `reference.png`; fix the largest visual differences first.
+- Compare the deterministic preview at 1600 × 1000 against `reference.png`; fix the largest visual differences first.
 - Capture final 1600 × 1000 and 390 × 844 screenshots.
 - Run and record project `web/` checks; list changed files and explicitly deferred controls.
 - **Exit check:** all acceptance criteria in section 11 pass, or remaining gaps are listed with impact and a concrete follow-up milestone.
@@ -295,17 +292,15 @@ Omit delivery and read marks. The service does not store them. Keep the bubble l
 
 ## 11. Acceptance criteria
 
-1. **Baseline and component map** — inspect the current `web/` styles, routes, service contracts, and reusable Material components. Record the current visual tokens. The service work in this pass is `handle` plus the earlier-message read.
-2. **Desktop shell** — build the header, left navigation/list, central thread, and right Friends/Create group cards. Match the reference’s geometry and colors at 1600 × 1000 before adding new interactions.
-3. **Identity and data rows** — show stable handles, avatars/fallback initials, presence labels, conversation previews, timestamps, and unread badges from real app state or explicit demo fixtures.
-4. **Search and selection** — implement conversation and people search, selected states, navigation between Chats/People, and responsive pane transitions.
-5. **Conversation actions** — wire friend message/open, add/unfriend with feedback, message send/retry, unread/read updates, group member selection, and group creation.
-6. **Trust, accessibility, and responsive polish** — implement the demo disclosure, disabled/coming-soon controls, keyboard/focus states, loading/empty/error states, and the listed viewport behavior.
-7. **Reference review** — compare a screenshot at 1600 × 1000 to `reference.png`, fix high-visibility mismatches, then inspect compact desktop and mobile layouts.
+1. **Preview mode** — add a development-only, deterministic, read-only fixture for the exact reference scenario.
+2. **Visual fidelity** — refine existing shell, list rows, group cards/member toggles, and icons against the reference.
+3. **Live-flow regression** — verify existing service-backed chat, search, friend, group, unread, presence, and pagination behaviors remain intact.
+4. **Responsive review** — check the established desktop/tablet/mobile layouts and keyboard access for any new preview affordances.
+5. **Reference sign-off** — capture desktop and mobile screenshots and record checks, intentional differences, and remaining gaps.
 
 The handoff is complete when all items below are true:
 
-- [ ] `SwagzChat/web/` is the client that was changed.
+- [ ] Only the existing Angular 22 client in `SwagzChat/web/` is changed for the UI pass; no legacy client or backend rewrite is introduced.
 - [ ] At 1600 × 1000, the app has the same three-column hierarchy, major labels, header, selected Mina conversation, demo disclosure, friends list, group card, and composer placement as `reference.png`. Notes is pinned above the reference rows. Avatars are initials. Read marks are absent. **Create group** is disabled while its name is empty.
 - [ ] The app uses the same restrained white/light lavender-gray surfaces, navy text, blue primary accent, pale amber disclosure, and red Leave action.
 - [ ] Conversation rows show stable identity, preview, activity time, and unread count where applicable.
@@ -326,7 +321,7 @@ The handoff is complete when all items below are true:
 - Deploying production endpoints, Docker deployment, or public security rules as part of the visual pass.
 - Building authentication or claiming that a guest name is verified.
 - Enabling call/video, file/image upload, or end-to-end encryption without the corresponding backend, authorization, and storage work.
-- Schema or route changes other than profile `handle` and `GET /conversations/:id/messages?before=<createdAt>&limit=50`.
+- Any schema or route changes for this remaining visual-fidelity pass; profile handles and earlier-message pagination are already implemented.
 - Migrating existing chat data.
 - Adding broad product features absent from the reference, such as stories, channels, bots, or a dashboard.
 
