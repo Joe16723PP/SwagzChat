@@ -1,3 +1,4 @@
+<div class="frame">
 <header class="bar">
   <div class="brand">
     <span class="mark" aria-hidden="true">
@@ -190,10 +191,15 @@
             <button class="btn btn-quiet" type="button" (click)="earlier()" [disabled]="loadingEarlier()">Load earlier messages</button>
           }
           <ol>
-            @for (message of messages(); track message.id) {
-              <li [class.mine]="mine(message)" [class.theirs]="!mine(message)">
-                <p>{{ message.text }}</p>
-                <time>{{ when(message.createdAt) }}</time>
+            @for (message of messages(); track message.id; let i = $index) {
+              <li [class.mine]="mine(message)" [class.theirs]="!mine(message)" [class.continued]="continuedTurn(i)">
+                @if (showTurnAvatar(i)) {
+                  <span class="avatar turn-avatar c{{ senderSlot(message) }}" aria-hidden="true">{{ senderLetters(message) }}</span>
+                }
+                <div class="turn-body">
+                  <p>{{ message.text }}</p>
+                  <time>{{ when(message.createdAt) }}</time>
+                </div>
               </li>
             }
           </ol>
@@ -284,6 +290,9 @@
     <input id="group-name" class="field" type="text" placeholder="Enter a group name…" [value]="groupName()" (input)="onGroupName($event)" />
     <label for="group-search">Add members</label>
     <input id="group-search" class="search" type="search" placeholder="Search people…" [value]="groupQuery()" (input)="onQuery($event, 'group')" />
+    <button type="button" class="choose-members" [attr.aria-expanded]="membersOpen()" (click)="toggleMembers()">
+      Choose members
+    </button>
     @if (groupMembers().length) {
       <ul class="chips">
         @for (uid of groupMembers(); track uid) {
@@ -295,22 +304,28 @@
         }
       </ul>
     }
-    <ul class="members">
-      @for (friend of groupChoices(); track friend.uid) {
-        <li>
-          <button
-            class="member"
-            type="button"
-            [attr.aria-pressed]="groupMembers().includes(friend.uid)"
-            (click)="toggleGroupMember(friend.uid)"
-          >
-            <span class="avatar tiny c{{ slot(friend.handle || friend.uid) }}" aria-hidden="true">{{ letters(friend.nickname) }}</span>
-            <span class="who">{{ friend.nickname }} @if (friend.handle) { <span class="handle">&#64;{{ friend.handle }}</span> }</span>
-            <span class="member-state">{{ groupMembers().includes(friend.uid) ? 'Selected' : 'Select' }}</span>
-          </button>
-        </li>
+    @if (showMemberChoices()) {
+      @if (groupChoices().length === 0) {
+        <p class="hint">No matches.</p>
+      } @else {
+        <ul class="members">
+          @for (friend of groupChoices(); track friend.uid) {
+            <li>
+              <button
+                class="member"
+                type="button"
+                [attr.aria-pressed]="groupMembers().includes(friend.uid)"
+                (click)="toggleGroupMember(friend.uid)"
+              >
+                <span class="avatar tiny c{{ slot(friend.handle || friend.uid) }}" aria-hidden="true">{{ letters(friend.nickname) }}</span>
+                <span class="who">{{ friend.nickname }} @if (friend.handle) { <span class="handle">&#64;{{ friend.handle }}</span> }</span>
+                <span class="member-state">{{ groupMembers().includes(friend.uid) ? 'Selected' : 'Select' }}</span>
+              </button>
+            </li>
+          }
+        </ul>
       }
-    </ul>
+    }
     <p class="hint" id="group-hint">{{ groupHint() }}</p>
     <button class="btn btn-fill group-create" type="button" [disabled]="!groupReady()" [attr.aria-describedby]="groupHint() ? 'group-hint' : null" (click)="createGroup()">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="2.2" /><circle cx="16" cy="9" r="2.2" /><path d="M4 18c.4-2 2-3.2 4-3.2s3.6 1.2 4 3.2M13 18c.3-1.6 1.6-2.6 3.4-2.6 1.4 0 2.6.7 3.2 2" /></svg>
@@ -318,4 +333,5 @@
     </button>
     </div>
   </section>
+</div>
 </div>

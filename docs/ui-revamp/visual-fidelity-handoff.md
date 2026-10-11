@@ -1,137 +1,159 @@
-# SwagzChat UI Revamp — Implementation Handoff
+# SwagzChat Visual Fidelity — Implementation Handoff
 
-**Status: READY TO HAND-OFF**  
-**Refreshed against:** `c3825b0` — “Replace Angular Material with Tailwind for the chat client.”  
-**Implementation target:** `web/` (Angular 22)  
-**Visual reference:** [`reference.png`](./reference.png)  
-**Product rules and exact demo copy:** [`spec.md`](./spec.md)
+**Status: SIGNED OFF — remaining visual pass complete, with the gaps listed below**
 
-## Objective
+**Current baseline:** `e6a87d2` — “Add a read-only reference preview and align the chat workspace with the visual target.”
 
-Bring the current SwagzChat workspace closer to `reference.png` while preserving the working guest and live chat experience. The reference is the visual target for the populated desktop composition. `spec.md` is the authority for fixture copy, product behavior, design principles, and intentional deviations from the image.
+**Implementation target:** `web/` (Angular 22, Tailwind CSS 4 configured)
 
-Implement against the current Angular 22 and Tailwind-configured client, not the removed Angular 8/Firebase client or the removed Angular Material design system. Do not change the Node/MongoDB service contract for this visual pass.
+**Reference:** [`reference.png`](./reference.png)
 
-## Current baseline
+**Product rules and fixture copy:** [`spec.md`](./spec.md)
 
-The reviewed source is commit `c3825b0`. The client is a standalone Angular 22 app using signals, with Tailwind CSS 4 registered in the build. Chat and landing UI still have component stylesheets (`web/src/app/pages/chat/chat.css` and `landing.css`), so keep the visual implementation coherent with the current CSS tokens and conventions. Do not reintroduce Angular Material.
+## Goal
 
-Relevant current files:
+Complete the remaining visual-fidelity work against `reference.png` while preserving the working live guest/chat experience. The reference is 1586 × 992; use a 1600 × 1000 browser viewport for sign-off. Keep all established product decisions in `spec.md`, including Notes pinned first, initials instead of portraits, no unsupported message receipts, honest demo labels, and a disabled Create group action while the group name is empty.
 
-- `web/src/app/pages/chat/chat.ts`, `chat.html`, `chat.css` — workspace state, interaction handlers, template, and styling.
-- `web/src/app/pages/landing/landing.ts`, `landing.html`, `landing.css` — guest name entry.
-- `web/src/app/core/chat-model.ts` — conversation/profile formatting and ordering helpers.
-- `web/src/app/core/chat-db.service.ts` and `core/api.ts` — live service integration.
-- `web/src/app/app.routes.ts` — `/` and guest-guarded `/chat`; there is no demo-preview route today.
-- `web/src/styles.css` and `web/.postcssrc.json` — global styles and Tailwind/PostCSS setup.
+This is a focused finishing pass. The development-only preview and fixture have already been implemented in `e6a87d2`; do not schedule them for initial implementation again.
 
-The existing app already supports guest entry and stored handles; Chats and People views; filtering; live conversation selection and messages; send/error handling; unread/read-on-open; pagination and jump-to-latest; presence; add/message/unfriend friend actions; group creation and validation; emoji insertion; and responsive pane behavior. Calls, video, attachments, and images are intentionally unavailable and must remain clearly disabled. Preserve these flows; the revamp is not a chat-feature rewrite.
+## Authority and scope
 
-The `/chat` page currently starts with no selected conversation. Its state comes from the guest and live API. The template uses Unicode/emoji glyphs for several navigation and message actions, and the right rail presents Friends and Create group in a single pane. There is no deterministic fixture preview in the current routes or chat state. Treat prior screenshots of a real guest session as observations of that session only, not as a canonical demo state.
+- This handoff is authoritative for **current implementation status, remaining milestones, and sign-off evidence**.
+- `spec.md` remains authoritative for **product behavior, design principles, exact copy, fixture details, and intentional deviations from the image**.
+- The older baseline and milestone language in `spec.md` §9 is superseded by this handoff. Do not interpret it as saying the preview still needs to be added.
+- Stay in `web/` for UI work. Do not change the API, database schema, guest identity model, or deployment setup.
+- Do not reintroduce Angular Material, Angular 8, or Firebase.
 
-## Settled product choices
+## Current implementation baseline
 
-The following decisions in `spec.md` govern implementation and sign-off:
+The current app is Angular 22 with standalone components and signals. Tailwind CSS 4 is registered, while the chat page’s styling is primarily in its component CSS files.
 
-1. Keep **Notes** pinned first and unselected; select Mina in the preview.
-2. Use deterministic initials and avatar colors, not portraits.
-3. Omit delivery/read marks because the service does not record receipts.
-4. Keep the preview group name empty and **Create group** disabled with its inline reason, despite the reference’s enabled-looking button.
-5. Emoji inserts into the draft. Calls, video, attachments, and images remain disabled with explanations.
-6. Keep **Demo account** and **Demo chat · names are not verified** visible. Do not imply identity verification, encryption, privacy, or receipt state that the service cannot establish.
-7. Keep `/chat` live and service-backed. Do not substitute fixtures for live data or force a selected conversation for real guests.
-8. Use the fixture text, local clock, order, unread count, presence, and handles exactly as specified in `spec.md` section 10.
+Already implemented in `e6a87d2`:
+
+- Development-only `/preview` route guarded by `isDevMode()` in `web/src/app/app.routes.ts`.
+- Fixed-time fixture in `web/src/app/core/preview-fixture.ts`, with Riley, Notes, Mina selected, exact conversation rows/messages, friend presence, and Mina/Jordan selected for group creation.
+- Preview-specific state initialization and protections in `web/src/app/pages/chat/chat.ts`; normal `/chat` remains guest-guarded and service-backed.
+- Three-pane workspace, separate Friends and Create group cards, SVG line icons, initials/color avatars, exact demo disclosure, and disabled unsupported call/upload actions.
+- Fixture unit coverage in `web/src/app/core/preview-fixture.spec.ts` and preview/live component coverage in `web/src/app/pages/chat/chat.spec.ts`.
+
+Existing live functionality remains in place: guest entry and Leave; Chats/People; filtering; live conversation selection and messages; send failure handling; read/unread; presence; friend add/message/unfriend; group creation; emoji insertion; pagination; jump-to-latest; responsive pane behavior.
+
+### Current visual review
+
+The target-viewport review is recorded in [Sign-off evidence](#sign-off-evidence). The earlier 1600 × 768 checkpoint is superseded: at 1600 × 1000 the Friends list and Create group card are both on screen, the member list starts collapsed, incoming initials mark the first bubble of a run, and the header and panes sit in one rounded frame.
 
 ## Design principles
 
-1. **Conversation first:** give the active thread and composer the strongest hierarchy; keep people management available without competing with the conversation.
-2. **Identity stays honest:** show guest display name and stable handle, and retain the demo/unverified cues. Never invent verification, delivery, or privacy states.
-3. **State is visible:** selection, unread, presence, loading, failure, disabled, and success states must be communicated with text, shape, icon, or status as well as color.
-4. **Preserve behavior:** refine the existing Angular components and service-backed handlers. Do not replace live interactions with fixture-only controls.
-5. **Keep actions understandable:** preserve friend-removal confirmation, failed-send drafts, group validation, and clear Leave behavior.
-6. **Use one visual system:** align spacing, typography, borders, avatar treatment, icons, and focus states across the header, list, thread, and rail. Use blue for primary/selected, amber for the demo disclosure, and red for Leave/destructive actions.
-7. **Responsive continuity:** compact layouts move among list, People, and thread panes without losing selection or draft; they do not squeeze three desktop columns into a phone.
-8. **Accessibility is part of the design:** provide labels, keyboard operation, visible focus, readable contrast, announcements, and reduced-motion handling.
-9. **Preview is isolated and read-only:** fixture rendering must not create guests, call mutating endpoints, change MongoDB, or alter the live guest session.
+1. **Conversation first:** keep the active thread and composer as the primary work surface; people management must not crowd it.
+2. **Identity stays honest:** show the demo and unverified-name cues; never imply verification, privacy, delivery, or read state the service cannot prove.
+3. **State is visible:** selection, unread, presence, loading, failure, and disabled states need non-color cues as well as color.
+4. **Preserve behavior:** refine existing components and handlers instead of replacing live interactions with fixture-only behavior.
+5. **Progressive disclosure:** show core controls by default and reveal secondary member choices when the user searches or explicitly opens that picker.
+6. **One visual system:** align spacing, typography, borders, avatar treatment, icons, and focus states; use blue for primary/selected, amber for disclosure, and red for Leave/destructive actions.
+7. **Responsive continuity:** compact layouts move among panes without losing selection or draft.
+8. **Accessible by construction:** keyboard operation, visible focus, labels, announcements, readable contrast, and reduced-motion behavior are part of sign-off.
+9. **Preview remains isolated:** preview never creates a guest or calls API/database mutations.
 
-## Implementation plan
+## Remaining implementation plan
 
-### Milestone 1 — Add a deterministic, read-only reference preview
+### Milestone 1 — Reduce default group-picker density
 
-**Likely files:** `web/src/app/app.routes.ts`, a small fixture/view-model module under `web/src/app/`, `chat.ts`, `chat.html`, and focused tests.
+**Files:** `web/src/app/pages/chat/chat.ts`, `chat.html`, `chat.css` (and related tests).
 
-- Add an explicit development-only preview entry (for example `/chat?demo=1`) that is absent or rejected in production builds. Keep the normal `/chat` guest guard and data path unchanged.
-- Add fixture data from `spec.md` section 10: Riley Park `@riley`, Notes plus the exact ordered conversation rows, Mina selected, exact message thread, friends/presence, and Mina/Jordan selected in the group form.
-- Pin fixture time to Thursday 11 June 2026 at 10:30 in the browser’s local zone so timestamps/activity labels remain stable.
-- Keep fixture data outside the API/database and do not use `GuestService.enter`, presence registration, or any mutating `ChatDbService` method in preview mode.
-- Prevent preview actions from sending, marking read, adding/removing friends, creating groups, changing presence, or leaving/clearing a real guest session. Safe local-only search, selection, and emoji-picker presentation may work if clearly isolated.
-- Preserve the normal live initial state: no forced selection and no demo records.
+- Keep the group name field, Add members search, and selected Mina/Jordan chips visible in the reference state.
+- Do not render the unfiltered friend-choice list while the search is empty. Show matching choices when the user enters a non-empty query; selected members remain visible as removable chips.
+- If the existing interaction needs a way to browse without typing, add a clearly labeled, keyboard-operable “Choose members” disclosure control. Keep the default preview collapsed.
+- Preserve selected/unselected state, `aria-pressed`, keyboard operation, group validation, and existing live group-creation handlers.
+- Keep preview group creation inert; the empty name keeps Create group disabled with the reason **Enter a group name.**
 
-**Exit checks:** two reloads show identical fixture content and state; preview causes no API/database mutation; regular `/chat` remains service-backed and unchanged.
+**Exit checks:** with empty group search, no member-option rows are rendered; typing a friend name reveals only matches; keyboard users can select/remove members; the live service receives the same member IDs as before.
 
-### Milestone 2 — Match desktop composition and conversation hierarchy
+### Milestone 2 — Match message-thread rhythm and workspace frame
 
-**Likely files:** `chat.html`, `chat.css`, `styles.css`.
+**Files:** `web/src/app/pages/chat/chat.html`, `chat.css`, and `chat-shell.css`.
 
-- Use `reference.png` at 1586 × 992 as the comparison target and capture the implementation at 1600 × 1000.
-- Refine the full-width header, three-column proportions, pane borders/radii, gutters, list density, selected Mina row, unread badge, conversation header, disclosure banner, message rhythm, and anchored composer.
-- Keep Notes pinned above Mina; use stable initials and colors. Keep message bubbles and metadata readable and prevent long names/previews/messages from forcing column overflow.
-- Style Friends and Create group as distinct nested cards within the right rail while retaining the existing data and action handlers.
-- Retain the light neutral palette and restrained blue/amber/red accents specified in `spec.md`; adjust existing CSS variables instead of creating an unrelated design system.
+- At the target viewport, compare column boundaries, outer radius/frame, header height, pane gutters, list row height, thread header, disclosure, message spacing, and composer placement against `reference.png`.
+- Add deterministic initials beside incoming message turns where this improves the reference match; do not introduce portrait assets or duplicate avatars on every consecutive incoming message.
+- Align timestamps consistently with the bubble edge and turn grouping, matching the reference’s compact rhythm without reducing readability.
+- Keep the reference deviations required by `spec.md`: Notes row first, initials/color avatars, no receipt marks, and disabled empty group form.
+- Preserve scrolling ownership: conversation list, message history, and Friends card scroll internally; header and composer remain visible.
 
-**Exit checks:** reference fixture fills the center thread and right rail; columns, content density, hierarchy, and spacing closely match the reference at desktop size; the live empty-selection state remains valid.
+**Exit checks:** at 1600 × 1000 the complete Friends list, Create group card, message thread, and composer are visible in the intended hierarchy; no pane is clipped or causes page-level horizontal scrolling; live `/chat` still supports its empty-selection state.
 
-### Milestone 3 — Unify controls and finish friend/group states
+### Milestone 3 — Verify compact layouts and interaction accessibility
 
-**Likely files:** `chat.html`, `chat.css`, and any small shared icon assets/component if needed.
+- Review **1024 × 768**, **768 × 1024**, and **390 × 844** in addition to desktop.
+- Confirm the Friends card scrolls internally when vertical space is short; verify the group form remains reachable and does not cover or displace the conversation task.
+- Check keyboard access and visible focus for navigation, conversation rows, member search/options, chips/removal, menus, and composer.
+- Check reduced-motion behavior, semantic selected/current state, accessible names, and status/error announcements.
 
-- Replace mixed navigation emoji and text glyph controls with a consistent line-icon treatment matching the reference. Prefer small inline SVGs or an existing project asset; do not add a UI framework solely for icons.
-- Style group member toggles, selected chips, removal affordances, search, and disabled/validation states. Keep `aria-pressed`, labels, and visible focus states.
-- Preserve exact group rule: a name and at least two selected friends are required; empty name displays the reason and disables Create group.
-- Keep calls/video/attachment/image controls disabled and explained. Keep the emoji picker functional in live mode, with insertion rather than sending.
+**Exit checks:** no horizontal page scrolling; selection and draft survive pane changes; all core tasks can be completed by keyboard; status is not conveyed by color alone.
 
-**Exit checks:** no browser-default member selector remains; icon-only actions have accessible names; disabled controls explain why; live friend/group/emoji actions still call their existing handlers.
+### Milestone 4 — Regression, visual sign-off, and handoff record
 
-### Milestone 4 — Responsive and accessibility pass
+Run these documented checks from the project root:
 
-- Compare desktop and compact behavior at **1024 × 768**, **768 × 1024**, and **390 × 844**.
-- Preserve the current pane-switching behavior, selected conversation, and draft when moving between panes. Check that the header and Leave action remain discoverable without horizontal page scrolling.
-- Verify keyboard navigation, focus visibility, semantic pressed/current state, labels, live announcements for errors/status, and reduced-motion behavior for animations.
+```bash
+(cd web && npm test -- --watch=false)
+(cd web && npm run build)
+(cd server && node --test src/handle.test.js)
+```
 
-**Exit checks:** all specified widths remain usable with no horizontal page overflow; the thread remains readable and composer reachable; core actions are keyboard accessible.
+Then:
 
-### Milestone 5 — Regression checks and handoff evidence
+- Capture `/preview` at **1600 × 1000** and **390 × 844**. Record browser zoom and confirm the local development server is serving the current build.
+- Compare the desktop capture with the 1586 × 992 reference and list only remaining gaps, with their impact.
+- Verify a production build does not expose `/preview`; the route is development-only.
+- Confirm `/preview` does not call `waitUntilConnected`, `ensureAccount`, `startPresence`, `markRead`, `sendMessage`, `addFriend`, `removeFriend`, `createFriendConversation`, or `createGroup`.
+- Confirm live guest entry/Leave, search, conversation selection, send/failure recovery, read/unread, presence, friend actions, group validation/creation, emoji insertion, earlier messages, and jump-to-latest still use the existing service-backed behavior.
+- Record exact check results, screenshot paths, changed files, known gaps, and deferred unsupported controls in this file.
 
-- Run the documented checks from the project README:
-
-  ```bash
-  (cd web && npm test -- --watch=false)
-  (cd web && npm run build)
-  (cd server && node --test src/handle.test.js)
-  ```
-
-- Capture final screenshots at **1600 × 1000** and **390 × 844**. Record intentional visual differences and any remaining gaps.
-- Confirm regular live flows still work: guest entry/Leave, conversation selection, search, send/failure recovery, unread/read-on-open, presence, friend actions, group validation/creation, emoji insertion, earlier messages, and jump-to-latest.
-- Record exact command results, screenshots, changed files, and deferred features in the handoff notes.
-
-**Exit checks:** all project checks pass; live behavior remains intact; preview remains read-only; final screenshots and any residual gaps are recorded.
+**Exit checks:** all three project checks pass; the production route check and preview no-mutation check pass; target-viewport screenshots are reviewed; remaining deviations are documented.
 
 ## Acceptance checklist
 
-- [ ] Handoff and implementation target the current Angular 22/Tailwind-configured app at `c3825b0`; no Angular Material or old Firebase assumptions remain.
-- [ ] A development-only deterministic preview matches `spec.md` section 10 and is read-only.
-- [ ] Ordinary `/chat` remains guest-guarded, API-backed, and initially unselected.
-- [ ] Notes is first and unselected; Mina is selected with unread count 2 in the fixture.
-- [ ] Desktop layout matches the reference composition and density, subject to settled differences.
-- [ ] Friends and Create group are visually distinct cards; group validation and selection are styled and accessible.
-- [ ] Existing guest, search, message, unread, presence, friend, group, emoji, pagination, and responsive behavior is preserved.
-- [ ] Unsupported call/video/upload controls are disabled and explained; no fake receipts are shown.
-- [ ] Compact widths have no horizontal page overflow and preserve task continuity.
-- [ ] Client tests, client build, and server handle tests pass; commands/results and final screenshots are recorded.
+- [x] Development-only `/preview` route exists and is unavailable outside development mode.
+- [x] Exact, fixed-time reference fixture exists and is isolated from live service data.
+- [x] Preview opens as Riley with Mina selected; Notes remains first; group form begins with Mina and Jordan selected and an empty name.
+- [x] Chat uses the current Angular 22/Tailwind-configured client; no Material/Firebase/Angular 8 assumptions remain.
+- [x] Unfiltered group options are hidden by default and search reveals matching choices accessibly.
+- [x] At 1600 × 1000, full Friends and Create group cards, messages, and composer match the reference hierarchy and density.
+- [x] Message timestamp/avatar rhythm and outer workspace framing receive a desktop comparison pass.
+- [x] Responsive and keyboard/focus checks pass at all specified viewports.
+- [x] Client tests, client production build, and server handle tests pass and are recorded.
+- [x] Final desktop/mobile captures and remaining differences are recorded.
+
+## Sign-off evidence
+
+Captured from `ng serve` at `http://127.0.0.1:4200/preview`, zoom 100%, device pixel ratio 1.
+
+- Desktop: [`captures/preview-1600x1000.png`](./captures/preview-1600x1000.png) — 1600 × 1000. Friends, Create group, the Mina thread, and the composer are all inside the frame. Page scroll width equals the viewport.
+- Phone: [`captures/preview-390x844.png`](./captures/preview-390x844.png) — 390 × 844. The open thread shows Back and Leave; the message list scrolls inside the pane.
+
+Checks, run with Node 22:
+
+- `(cd web && npm test -- --watch=false)` — 17 passed.
+- `(cd web && npm run build)` — passed. Initial bundle 233.72 kB. No component-style budget error.
+- `(cd server && node --test src/handle.test.js)` — 2 passed.
+- Production `dist` served locally: `/preview` resolves to `/` and shows the name form. The development server still serves the fixture at `/preview`.
+- Preview resource timing contained no account, live, or presence requests. Preview create stays disabled with **Enter a group name.**
+
+Also checked 1024 × 768 and 768 × 1024. At 1024 × 768, opening Friends hides the thread, the Friends card scrolls internally, and the group form stays on screen. Mina stays selected and the composer draft stays. At 768 × 1024 and 390 × 844 there is no page-level horizontal scroll. Focus styles are defined for navigation, rows, member choices, chips, Choose members, and buttons.
+
+Changed for this pass: `web/src/app/pages/chat/chat.html`, `chat.ts`, `chat-shell.css`, `chat.spec.ts`.
+
+### Remaining gaps
+
+- Initials and color avatars stand in for the reference portraits. No delivery or read marks. Both are required by `spec.md`.
+- Incoming initials appear on the first bubble of a consecutive run. The reference repeats a portrait on every incoming bubble.
+- Incoming times sit on the bubble’s trailing edge. Outgoing times sit under that edge.
+- Calls, video, and attachments stay disabled.
+- Preview Leave still calls `GuestService.leave()`. Clearing that stored guest is deferred until after this visual pass.
+- `spec.md` §5 still mentions Material theme tokens, and principle 5 still says to disable emoji. Settled behavior is Tailwind styling and an emoji control that inserts a character.
 
 ## Out of scope
 
-- Rebuilding current guest, chat, search, presence, friendship, group, message history, emoji, or mobile flows.
-- Authentication or identity/security redesign; API/schema/database changes; writing reference fixtures to MongoDB.
+- Rebuilding the existing guest, chat, search, presence, friendship, group, messaging, emoji, pagination, or responsive flows.
+- Authentication/identity redesign; API/schema/database changes; storing fixture data in MongoDB.
 - Calls, video, attachment/image upload, delivery/read receipts, or deployment.
-- Reintroducing Angular 8, Firebase, or Angular Material.
+- Reintroducing Angular Material, Angular 8, or Firebase.

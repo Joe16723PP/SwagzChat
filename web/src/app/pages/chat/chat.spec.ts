@@ -239,10 +239,28 @@ describe('Chat preview', () => {
     expect(root.textContent).toContain('Demo chat · names are not verified');
     expect(root.textContent).toContain('Enter a group name.');
     expect((root.querySelector('.group-create') as HTMLButtonElement).disabled).toBe(true);
+    expect(root.querySelectorAll('.member')).toHaveLength(0);
+    const choose = root.querySelector('.choose-members') as HTMLButtonElement;
+    expect(choose.getAttribute('aria-expanded')).toBe('false');
+    choose.click();
+    fixture.detectChanges();
+    expect(root.querySelectorAll('.member').length).toBeGreaterThan(1);
+    const memberSearch = root.querySelector('#group-search') as HTMLInputElement;
+    memberSearch.value = 'zzz';
+    memberSearch.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(root.querySelectorAll('.member')).toHaveLength(0);
+    expect(root.textContent).toContain('No matches.');
+    memberSearch.value = '';
+    memberSearch.dispatchEvent(new Event('input'));
+    choose.click();
+    fixture.detectChanges();
+    expect(root.querySelectorAll('.member')).toHaveLength(0);
     const rows = [...root.querySelectorAll('.person')] as HTMLButtonElement[];
     expect(rows[0].textContent).toContain('Notes');
     expect(rows[1].getAttribute('aria-pressed')).toBe('true');
     expect(rows[1].textContent).toContain('2');
+    expect(root.querySelectorAll('.log .turn-avatar')).toHaveLength(3);
 
     rows[2].click();
     await fixture.whenStable();

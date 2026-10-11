@@ -57,6 +57,7 @@ export class Chat implements OnDestroy {
   protected readonly chatQuery = signal('');
   protected readonly friendQuery = signal('');
   protected readonly groupQuery = signal('');
+  protected readonly membersOpen = signal(false);
   protected readonly emojiOpen = signal(false);
   protected readonly pendingUnfriend = signal<string | null>(null);
   protected readonly profileOpen = signal(false);
@@ -171,6 +172,14 @@ export class Chat implements OnDestroy {
 
   protected groupChoices(): Profile[] {
     return this.matching(this.friends(), this.groupQuery());
+  }
+
+  protected showMemberChoices(): boolean {
+    return this.membersOpen() || this.groupQuery().trim().length > 0;
+  }
+
+  protected toggleMembers(): void {
+    this.membersOpen.update((open) => !open);
   }
 
   protected visibleDirectory(): Profile[] {
@@ -356,6 +365,33 @@ export class Chat implements OnDestroy {
       return formatMessageTime(createdAt, 'en-US');
     }
     return formatMessageTime(createdAt);
+  }
+
+  protected showTurnAvatar(index: number): boolean {
+    const rows = this.messages();
+    const message = rows?.[index];
+    if (!rows || !message || this.mine(message)) {
+      return false;
+    }
+    const previous = rows[index - 1];
+    return !previous || previous.senderUid !== message.senderUid;
+  }
+
+  protected continuedTurn(index: number): boolean {
+    const rows = this.messages();
+    const message = rows?.[index];
+    const previous = index > 0 ? rows?.[index - 1] : undefined;
+    return !!message && !!previous && !this.mine(message) && previous.senderUid === message.senderUid;
+  }
+
+  protected senderLetters(message: ChatMessage): string {
+    const profile = this.profiles()?.find((item) => item.uid === message.senderUid);
+    return this.letters(profile?.nickname || 'Friend');
+  }
+
+  protected senderSlot(message: ChatMessage): number {
+    const profile = this.profiles()?.find((item) => item.uid === message.senderUid);
+    return this.slot(profile?.handle || message.senderUid);
   }
 
   protected openConversation(id: string): void {

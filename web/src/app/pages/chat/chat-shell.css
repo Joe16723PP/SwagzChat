@@ -16,9 +16,24 @@ app-chat {
   --amber: #fff6df;
   --amber-ink: #5c4814;
   --blue: #2f6fed;
+  box-sizing: border-box;
+  height: 100%;
+  padding: 12px;
   color: var(--ink);
   background: var(--canvas);
   font-family: Roboto, ui-sans-serif, system-ui, sans-serif;
+}
+
+app-chat .frame {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 10px 28px rgba(23, 32, 51, 0.05);
 }
 
 app-chat .ico {
@@ -170,6 +185,7 @@ app-chat .send:focus-visible,
 app-chat .icon:focus-visible,
 app-chat .person:focus-visible,
 app-chat .member:focus-visible,
+app-chat .choose-members:focus-visible,
 app-chat .nav button:focus-visible,
 app-chat .chips button:focus-visible {
   outline: 2px solid var(--blue);
@@ -235,6 +251,7 @@ app-chat .shell {
   flex: 1;
   min-height: 0;
   padding: 12px;
+  background: var(--canvas);
 }
 
 app-chat .pane {
@@ -444,24 +461,53 @@ app-chat ul {
 
 app-chat .log li {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
+  gap: 8px;
   width: fit-content;
-  max-width: min(75%, 520px);
-  margin-bottom: 12px;
+  max-width: min(78%, 560px);
+  margin-bottom: 8px;
   padding: 0;
   background: transparent;
 }
 
+app-chat .turn-body {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
 app-chat .log li p {
   margin: 0;
+  max-width: 420px;
   padding: 8px 12px;
   border-radius: 16px;
+}
+
+app-chat .log time {
+  margin: 0;
+  white-space: nowrap;
+}
+
+app-chat .turn-avatar {
+  width: 28px;
+  height: 28px;
+  font-size: 0.65rem;
+}
+
+app-chat .log .theirs.continued {
+  margin-left: 36px;
 }
 
 app-chat .log .mine {
   margin-left: auto;
   align-items: flex-end;
+}
+
+app-chat .log .mine .turn-body {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 
 app-chat .log .mine p {
@@ -562,6 +608,24 @@ app-chat .chips li {
   font-size: 0.8rem;
 }
 
+app-chat .choose-members {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+}
+
+app-chat .choose-members[aria-expanded='true'] {
+  background: var(--select);
+}
+
 app-chat .member {
   width: 100%;
   padding: 6px;
@@ -618,6 +682,16 @@ app-chat .sr {
 }
 
 @media (max-width: 800px) {
+  app-chat {
+    padding: 0;
+  }
+
+  app-chat .frame {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   app-chat .bar {
     padding: 8px;
   }
