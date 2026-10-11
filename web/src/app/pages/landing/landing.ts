@@ -1,14 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
-import { MatButton } from '@angular/material/button';
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { GuestService } from '../../core/guest.service';
 
 @Component({
   selector: 'app-landing',
-  imports: [MatButton, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatFormField, MatInput, MatLabel],
   templateUrl: './landing.html',
   styleUrl: './landing.css',
 })

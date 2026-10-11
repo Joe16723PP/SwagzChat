@@ -1,9 +1,32 @@
-html,
-body,
-app-root {
-  height: 100%;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Roboto, ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #172033;
+  --color-muted: #5c6b80;
+  --color-line: #e6eaf1;
+  --color-canvas: #f4f6fb;
+  --color-card: #ffffff;
+  --color-primary: #2f6fed;
+  --color-danger: #d92d20;
 }
 
-app-root {
-  display: block;
+@layer base {
+  html,
+  body,
+  app-root {
+    height: 100%;
+  }
+
+  body {
+    color-scheme: light;
+    margin: 0;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  app-root {
+    display: block;
+  }
 }

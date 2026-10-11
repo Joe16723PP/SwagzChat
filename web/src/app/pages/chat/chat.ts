@@ -1,6 +1,4 @@
 import { Component, effect, ElementRef, inject, OnDestroy, signal, viewChild } from '@angular/core';
-import { MatButton } from '@angular/material/button';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { ChatDbService } from '../../core/chat-db.service';
 import { Guest, GuestService } from '../../core/guest.service';
@@ -21,7 +19,6 @@ import {
 
 @Component({
   selector: 'app-chat',
-  imports: [MatButton, MatProgressSpinner],
   templateUrl: './chat.html',
   styleUrl: './chat.css',
 })

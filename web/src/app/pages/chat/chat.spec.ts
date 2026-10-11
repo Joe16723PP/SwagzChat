@@ -141,6 +141,6 @@ describe('Chat', () => {
     const root = fixture.nativeElement as HTMLElement;
     expect(root.textContent).toContain('Chat cannot load because the chat server is not available.');
     expect(root.textContent).toContain("Couldn't load chats.");
-    expect(root.querySelector('mat-spinner, mat-progress-spinner')).toBeNull();
+    expect(root.querySelector('.spinner')).toBeNull();
   });
 });

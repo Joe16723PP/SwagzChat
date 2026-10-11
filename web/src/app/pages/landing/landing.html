@@ -1,26 +1,27 @@
-<mat-card class="panel" appearance="outlined">
-  <mat-card-header>
-    <mat-card-title>SwagzChat</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <p class="lede">Enter your name to open chat.</p>
-    <form (submit)="enter($event)">
-      <mat-form-field appearance="outline" class="full">
-        <mat-label>Name</mat-label>
-        <input
-          matInput
-          id="guest-name"
-          type="text"
-          maxlength="32"
-          autocomplete="nickname"
-          [value]="name()"
-          (input)="onName($event)"
-        />
-        @if (errorMessage()) {
-          <p class="error" role="alert">{{ errorMessage() }}</p>
-        }
-      </mat-form-field>
-      <button matButton="filled" type="submit">Continue</button>
-    </form>
-  </mat-card-content>
-</mat-card>
+<section class="w-full max-w-[420px] rounded-2xl border border-line bg-card p-6">
+  <h1 class="m-0 text-xl font-bold">SwagzChat</h1>
+  <p class="my-4">Enter your name to open chat.</p>
+  <form class="grid gap-4" (submit)="enter($event)">
+    <div class="grid gap-2">
+      <label for="guest-name">Name</label>
+      <input
+        id="guest-name"
+        class="w-full rounded-xl border border-line bg-slate-50 px-3 py-2.5 text-inherit focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        type="text"
+        maxlength="32"
+        autocomplete="nickname"
+        [value]="name()"
+        (input)="onName($event)"
+      />
+    </div>
+    @if (errorMessage()) {
+      <p class="m-0 text-danger" role="alert">{{ errorMessage() }}</p>
+    }
+    <button
+      class="justify-self-start rounded-full bg-primary px-4 py-2 font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      type="submit"
+    >
+      Continue
+    </button>
+  </form>
+</section>

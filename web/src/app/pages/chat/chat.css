@@ -107,12 +107,63 @@ time,
   background: #12b76a;
 }
 
+.btn {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: transparent;
+  color: #2f6fed;
+  font: inherit;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.btn-line {
+  border: 1px solid #c5d4f5;
+  background: #fff;
+}
+
+.btn-fill {
+  background: #2f6fed;
+  color: #fff;
+}
+
+.btn:disabled,
+.send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn:focus-visible,
+.send:focus-visible,
+.icon:focus-visible,
+.person:focus-visible,
+.nav button:focus-visible {
+  outline: 2px solid #2f6fed;
+  outline-offset: 2px;
+}
+
 .leave {
   color: #d92d20;
-  border-color: #fecdca;
-  --mat-button-outlined-label-text-color: #d92d20;
-  --mat-button-outlined-outline-color: #fecdca;
-  --mat-button-outlined-state-layer-color: #d92d20;
+  border: 1px solid #fecdca;
+  background: #fff;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  margin: 12px auto;
+  border: 3px solid var(--line);
+  border-top-color: #2f6fed;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .menu {
@@ -340,6 +391,8 @@ ul {
   width: 44px;
   height: 44px;
   border-radius: 50%;
+  background: #2f6fed;
+  color: #fff;
 }
 
 .emoji {
@@ -438,5 +491,9 @@ ul {
 @media (prefers-reduced-motion: reduce) {
   .log {
     scroll-behavior: auto;
+  }
+
+  .spinner {
+    animation: none;
   }
 }

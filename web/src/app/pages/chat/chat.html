@@ -11,7 +11,7 @@
   </div>
   <div class="bar-actions">
     @if (railCollapsed() && !(compact() && selected())) {
-      <button matButton="outlined" type="button" (click)="showPeople.set(!showPeople())">
+      <button class="btn btn-line" type="button" (click)="showPeople.set(!showPeople())">
         {{ showPeople() ? 'Chats' : 'Friends' }}
       </button>
     }
@@ -24,25 +24,25 @@
         }
       </span>
       <span class="dot" [class.on]="me()?.status" aria-hidden="true"></span>
-      <button matButton="text" type="button" aria-label="Profile menu" [attr.aria-expanded]="profileOpen()" (click)="profileOpen.set(!profileOpen())">▾</button>
+      <button class="btn btn-quiet" type="button" aria-label="Profile menu" [attr.aria-expanded]="profileOpen()" (click)="profileOpen.set(!profileOpen())">▾</button>
       @if (profileOpen()) {
         <div class="menu" role="menu">
           <p>{{ me()?.nickname || guests.guest()?.name }}</p>
           @if (me()?.handle) {
             <p class="handle">&#64;{{ me()?.handle }}</p>
           }
-          <button matButton="text" type="button" (click)="leave()">Leave</button>
+          <button class="btn btn-quiet" type="button" (click)="leave()">Leave</button>
         </div>
       }
     </div>
-    <button class="leave" matButton="outlined" type="button" (click)="leave()">Leave</button>
+    <button class="leave btn" type="button" (click)="leave()">Leave</button>
   </div>
 </header>
 
 @if (errorMessage()) {
   <p class="banner" role="alert">
     {{ errorMessage() }}
-    <button matButton="text" type="button" (click)="retry()">Retry</button>
+    <button class="btn btn-quiet" type="button" (click)="retry()">Retry</button>
   </p>
 }
 <p class="sr" aria-live="polite">{{ errorMessage() }}</p>
@@ -70,7 +70,7 @@
     @if (section() === 'chats') {
       <h2>Conversations</h2>
       @if (inbox() === null && !errorMessage()) {
-        <mat-spinner diameter="28" />
+        <div class="spinner" role="status" aria-label="Loading"></div>
       } @else if (inbox() === null) {
         <p>Couldn't load chats.</p>
       } @else if (conversations().length === 0) {
@@ -113,7 +113,7 @@
     } @else {
       <h2>People</h2>
       @if (profiles() === null && !errorMessage()) {
-        <mat-spinner diameter="28" />
+        <div class="spinner" role="status" aria-label="Loading"></div>
       } @else if (profiles() === null) {
         <p>Couldn't load people.</p>
       } @else if (visibleDirectory().length === 0) {
@@ -127,7 +127,7 @@
                 <span class="who">{{ person.nickname }} @if (person.handle) { <span class="handle">&#64;{{ person.handle }}</span> }</span>
                 <span class="preview"><span class="dot" [class.on]="person.status" aria-hidden="true"></span> {{ presenceText(person) }}</span>
               </span>
-              <button matButton="outlined" type="button" (click)="add(person)">Add</button>
+              <button class="btn btn-line" type="button" (click)="add(person)">Add</button>
             </li>
           }
         </ul>
@@ -141,7 +141,7 @@
     } @else {
       <header class="thread-head">
         @if (compact()) {
-          <button matButton="outlined" type="button" (click)="backToList()">Back</button>
+          <button class="btn btn-line" type="button" (click)="backToList()">Back</button>
         }
         <span class="avatar c{{ slot(colorKey(selected()!)) }}" aria-hidden="true">{{ letters(label(selected()!)) }}</span>
         <div>
@@ -164,12 +164,12 @@
       <p class="disclosure"><span aria-hidden="true">i</span> Demo chat · names are not verified</p>
       <div class="log" #log (scroll)="onLogScroll()">
         @if (messages() === null) {
-          <mat-spinner diameter="28" />
+          <div class="spinner" role="status" aria-label="Loading"></div>
         } @else if (messages()!.length === 0) {
           <p>No messages yet.</p>
         } @else {
           @if (messages()!.length >= 50 && !historyDone()) {
-            <button matButton="text" type="button" (click)="earlier()" [disabled]="loadingEarlier()">Load earlier messages</button>
+            <button class="btn btn-quiet" type="button" (click)="earlier()" [disabled]="loadingEarlier()">Load earlier messages</button>
           }
           <ol>
             @for (message of messages(); track message.id) {
@@ -182,7 +182,7 @@
         }
       </div>
       @if (showJump()) {
-        <button matButton="outlined" type="button" (click)="jumpToEnd()">New messages</button>
+        <button class="btn btn-line" type="button" (click)="jumpToEnd()">New messages</button>
       }
       <form class="composer" (submit)="send($event)">
         <label class="sr" for="draft">Message</label>
@@ -204,7 +204,7 @@
         ></textarea>
         <button type="button" class="icon" aria-disabled="true" aria-label="Attachments are not available in this demo" title="Attachments are not available in this demo">📎</button>
         <button type="button" class="icon" aria-disabled="true" aria-label="Images are not available in this demo" title="Images are not available in this demo">🖼</button>
-        <button class="send" matButton="filled" type="submit" [disabled]="sending() || !draft().trim()" aria-label="Send">➤</button>
+        <button class="send" type="submit" [disabled]="sending() || !draft().trim()" aria-label="Send">➤</button>
       </form>
     }
   </section>
@@ -214,7 +214,7 @@
     <label class="sr" for="friend-search">Search people</label>
     <input id="friend-search" class="search" type="search" placeholder="Search people…" [value]="friendQuery()" (input)="onQuery($event, 'friend')" />
     @if (friendUids() === null && !errorMessage()) {
-      <mat-spinner diameter="28" />
+      <div class="spinner" role="status" aria-label="Loading"></div>
     } @else if (friendUids() === null) {
       <p>Couldn't load friends.</p>
     } @else if (visibleFriends().length === 0) {
@@ -228,15 +228,15 @@
               <span class="who">{{ friend.nickname }} @if (friend.handle) { <span class="handle">&#64;{{ friend.handle }}</span> }</span>
               <span class="preview"><span class="dot" [class.on]="friend.status" aria-hidden="true"></span> {{ presenceText(friend) }}</span>
             </span>
-            <button matButton="outlined" type="button" (click)="chatWith(friend.uid)">Message</button>
+            <button class="btn btn-line" type="button" (click)="chatWith(friend.uid)">Message</button>
             @if (pendingUnfriend() === friend.uid) {
               <span class="confirm">
                 Unfriend {{ friend.nickname }}? The conversation stays.
-                <button matButton="text" type="button" (click)="removeFriend(friend.uid)">Unfriend</button>
-                <button matButton="text" type="button" (click)="cancelUnfriend()">Cancel</button>
+                <button class="btn btn-quiet" type="button" (click)="removeFriend(friend.uid)">Unfriend</button>
+                <button class="btn btn-quiet" type="button" (click)="cancelUnfriend()">Cancel</button>
               </span>
             } @else {
-              <button matButton="text" type="button" [attr.aria-label]="'More actions for ' + friend.nickname" (click)="askUnfriend(friend.uid)">⋯</button>
+              <button class="btn btn-quiet" type="button" [attr.aria-label]="'More actions for ' + friend.nickname" (click)="askUnfriend(friend.uid)">⋯</button>
             }
           </li>
         }
@@ -272,6 +272,6 @@
       }
     </ul>
     <p class="preview">{{ groupHint() }}</p>
-    <button matButton="filled" type="button" [disabled]="!groupReady()" (click)="createGroup()">Create group</button>
+    <button class="btn btn-fill" type="button" [disabled]="!groupReady()" (click)="createGroup()">Create group</button>
   </section>
 </div>
