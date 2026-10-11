@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter } from '@angular/router';
+import { routes } from '../../app.routes';
 import { ChatDbService } from '../../core/chat-db.service';
 import { GuestService } from '../../core/guest.service';
 import { Chat } from './chat';
@@ -142,5 +143,116 @@ describe('Chat', () => {
     expect(root.textContent).toContain('Chat cannot load because the chat server is not available.');
     expect(root.textContent).toContain("Couldn't load chats.");
     expect(root.querySelector('.spinner')).toBeNull();
+  });
+});
+
+describe('Chat preview', () => {
+  const calls: string[] = [];
+
+  beforeEach(async () => {
+    calls.length = 0;
+    await TestBed.configureTestingModule({
+      imports: [Chat],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { data: { preview: true } } },
+        },
+        {
+          provide: GuestService,
+          useValue: {
+            guest: signal({ id: 'me', name: 'Me' }),
+            leave: () => undefined,
+          },
+        },
+        {
+          provide: ChatDbService,
+          useValue: {
+            waitUntilConnected: async () => {
+              calls.push('connect');
+            },
+            ensureAccount: async () => {
+              calls.push('account');
+            },
+            startPresence: async () => {
+              calls.push('presence');
+              return async () => undefined;
+            },
+            watchInbox: () => {
+              calls.push('inbox');
+              return () => undefined;
+            },
+            watchProfiles: () => {
+              calls.push('profiles');
+              return () => undefined;
+            },
+            watchFriends: () => {
+              calls.push('friends');
+              return () => undefined;
+            },
+            watchMessages: () => {
+              calls.push('messages');
+              return () => undefined;
+            },
+            markRead: async () => {
+              calls.push('read');
+            },
+            sendMessage: async () => {
+              calls.push('send');
+            },
+            createGroup: async () => {
+              calls.push('group');
+              return 'c_group';
+            },
+            createFriendConversation: async () => {
+              calls.push('friend-chat');
+              return 'c_new';
+            },
+            addFriend: async () => {
+              calls.push('add');
+            },
+            removeFriend: async () => {
+              calls.push('remove');
+            },
+          },
+        },
+      ],
+    }).compileComponents();
+  });
+
+  it('keeps the reference preview off the guest guard', () => {
+    const preview = routes.find((route) => route.path === 'preview');
+    expect(preview?.canActivate).toBeUndefined();
+    expect(preview?.data).toEqual({ preview: true });
+  });
+
+  it('shows the reference fixture and does not call the chat service', async () => {
+    const fixture = TestBed.createComponent(Chat);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.textContent).toContain('Riley Park');
+    expect(root.textContent).toContain('@riley');
+    expect(root.textContent).toContain('Mina Chen');
+    expect(root.textContent).toContain('10:24 AM');
+    expect(root.textContent).toContain('Demo chat · names are not verified');
+    expect(root.textContent).toContain('Enter a group name.');
+    expect((root.querySelector('.group-create') as HTMLButtonElement).disabled).toBe(true);
+    const rows = [...root.querySelectorAll('.person')] as HTMLButtonElement[];
+    expect(rows[0].textContent).toContain('Notes');
+    expect(rows[1].getAttribute('aria-pressed')).toBe('true');
+    expect(rows[1].textContent).toContain('2');
+
+    rows[2].click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const input = root.querySelector('#draft') as HTMLTextAreaElement;
+    input.value = 'hello';
+    input.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    (root.querySelector('.composer') as HTMLFormElement).requestSubmit();
+    await fixture.whenStable();
+    expect(calls).toEqual([]);
   });
 });

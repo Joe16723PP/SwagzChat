@@ -61,14 +61,14 @@ export function messageIsMine(message: ChatMessage, myUid: string): boolean {
   return message.senderUid === myUid;
 }
 
-export function formatMessageTime(createdAt: number): string {
+export function formatMessageTime(createdAt: number, locale?: string): string {
   if (!createdAt) {
     return '';
   }
-  return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(createdAt);
+  return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }).format(createdAt);
 }
 
-export function formatActivityTime(createdAt: number, now = Date.now()): string {
+export function formatActivityTime(createdAt: number, now = Date.now(), locale?: string): string {
   if (!createdAt) {
     return '';
   }
@@ -77,15 +77,15 @@ export function formatActivityTime(createdAt: number, now = Date.now()): string 
   const start = (value: Date) => new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
   const days = Math.round((start(current) - start(when)) / 86_400_000);
   if (days <= 0) {
-    return formatMessageTime(createdAt);
+    return formatMessageTime(createdAt, locale);
   }
   if (days === 1) {
     return 'Yesterday';
   }
   if (days <= 6) {
-    return new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(when);
+    return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(when);
   }
-  return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(when);
+  return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(when);
 }
 
 export function initials(name: string): string {

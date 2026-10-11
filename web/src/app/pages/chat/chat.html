@@ -35,7 +35,14 @@
         </div>
       }
     </div>
-    <button class="leave btn" type="button" (click)="leave()">Leave</button>
+    <button class="leave btn" type="button" (click)="leave()">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M10 7V5a2 2 0 0 1 2-2h7v18h-7a2 2 0 0 1-2-2v-2" />
+        <path d="M15 12H3" />
+        <path d="M6 9l-3 3 3 3" />
+      </svg>
+      Leave
+    </button>
   </div>
 </header>
 
@@ -60,10 +67,12 @@
     />
     <nav class="nav" aria-label="Workspace">
       <button type="button" [attr.aria-current]="section() === 'chats' ? 'page' : null" (click)="showChats()">
-        <span aria-hidden="true">💬</span> Chats
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14v9H8l-3 3z" /></svg>
+        Chats
       </button>
       <button type="button" [attr.aria-current]="section() === 'people' ? 'page' : null" (click)="showDirectory()">
-        <span aria-hidden="true">👤</span> People
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3.5 19c.6-2.6 2.7-4 5.5-4s4.9 1.4 5.5 4" /><circle cx="17" cy="9" r="2.2" /><path d="M16 15c2.2.3 3.8 1.5 4.5 4" /></svg>
+        People
       </button>
     </nav>
 
@@ -156,12 +165,21 @@
           }
         </div>
         <div class="thread-tools">
-          <button type="button" class="icon" aria-disabled="true" aria-label="Calls are not available in this demo" title="Calls are not available in this demo">☎</button>
-          <button type="button" class="icon" aria-disabled="true" aria-label="Calls are not available in this demo" title="Calls are not available in this demo">▣</button>
-          <button type="button" class="icon" aria-disabled="true" aria-label="More actions are not available in this demo" title="More actions are not available in this demo">⋯</button>
+          <button type="button" class="icon" aria-disabled="true" aria-label="Calls are not available in this demo" title="Calls are not available in this demo">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h3l1 4-2 1a12 12 0 0 0 5 5l1-2 4 1v3c0 1-1 2-2 2C9 18 6 8 6 6c0-1 1-2 2-2z" /></svg>
+          </button>
+          <button type="button" class="icon" aria-disabled="true" aria-label="Calls are not available in this demo" title="Calls are not available in this demo">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="2" /><path d="M15 10l6-3v10l-6-3z" /></svg>
+          </button>
+          <button type="button" class="icon" aria-disabled="true" aria-label="More actions are not available in this demo" title="More actions are not available in this demo">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1.2" /><circle cx="12" cy="12" r="1.2" /><circle cx="18" cy="12" r="1.2" /></svg>
+          </button>
         </div>
       </header>
-      <p class="disclosure"><span aria-hidden="true">i</span> Demo chat · names are not verified</p>
+      <p class="disclosure">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M12 11v5" /><circle cx="12" cy="8" r="0.8" fill="currentColor" stroke="none" /></svg>
+        Demo chat · names are not verified
+      </p>
       <div class="log" #log (scroll)="onLogScroll()">
         @if (messages() === null) {
           <div class="spinner" role="status" aria-label="Loading"></div>
@@ -193,23 +211,34 @@
             }
           </div>
         }
-        <button type="button" class="icon" aria-label="Insert emoji" [attr.aria-expanded]="emojiOpen()" (click)="toggleEmoji()">☺</button>
-        <textarea
-          id="draft"
-          rows="1"
-          placeholder="Write a message…"
-          [value]="draft()"
-          (input)="onDraft($event)"
-          (keydown)="onComposerKey($event)"
-        ></textarea>
-        <button type="button" class="icon" aria-disabled="true" aria-label="Attachments are not available in this demo" title="Attachments are not available in this demo">📎</button>
-        <button type="button" class="icon" aria-disabled="true" aria-label="Images are not available in this demo" title="Images are not available in this demo">🖼</button>
-        <button class="send" type="submit" [disabled]="sending() || !draft().trim()" aria-label="Send">➤</button>
+        <div class="draft-box">
+          <button type="button" class="icon" aria-label="Insert emoji" [attr.aria-expanded]="emojiOpen()" (click)="toggleEmoji()">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M8.5 14c1 1.4 2.2 2 3.5 2s2.5-.6 3.5-2" /><circle cx="9" cy="10" r="0.8" fill="currentColor" stroke="none" /><circle cx="15" cy="10" r="0.8" fill="currentColor" stroke="none" /></svg>
+          </button>
+          <textarea
+            id="draft"
+            rows="1"
+            placeholder="Write a message…"
+            [value]="draft()"
+            (input)="onDraft($event)"
+            (keydown)="onComposerKey($event)"
+          ></textarea>
+          <button type="button" class="icon" aria-disabled="true" aria-label="Attachments are not available in this demo" title="Attachments are not available in this demo">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12.5l6.2-6.2a3 3 0 0 1 4.2 4.2l-7.4 7.5a4.2 4.2 0 0 1-6-6L12 5" /></svg>
+          </button>
+          <button type="button" class="icon" aria-disabled="true" aria-label="Images are not available in this demo" title="Images are not available in this demo">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" /><circle cx="9" cy="10" r="1.4" /><path d="M7 16l3.5-3.5L14 16l2-2 2 2" /></svg>
+          </button>
+        </div>
+        <button class="send" type="submit" [disabled]="sending() || !draft().trim()" aria-label="Send">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l15-7-4 16-4-6z" /></svg>
+        </button>
       </form>
     }
   </section>
 
   <section class="pane rail" aria-label="Friends">
+    <div class="rail-card friends">
     <h2>Friends</h2>
     <label class="sr" for="friend-search">Search people</label>
     <input id="friend-search" class="search" type="search" placeholder="Search people…" [value]="friendQuery()" (input)="onQuery($event, 'friend')" />
@@ -236,42 +265,57 @@
                 <button class="btn btn-quiet" type="button" (click)="cancelUnfriend()">Cancel</button>
               </span>
             } @else {
-              <button class="btn btn-quiet" type="button" [attr.aria-label]="'More actions for ' + friend.nickname" (click)="askUnfriend(friend.uid)">⋯</button>
+              <button class="btn btn-quiet icon" type="button" [attr.aria-label]="'More actions for ' + friend.nickname" (click)="askUnfriend(friend.uid)">
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1.2" /><circle cx="12" cy="12" r="1.2" /><circle cx="18" cy="12" r="1.2" /></svg>
+              </button>
             }
           </li>
         }
       </ul>
     }
 
-    <h2>Create group</h2>
-    <label class="sr" for="group-name">Group name</label>
+    </div>
+    <div class="rail-card group">
+    <h2>
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="2.4" /><circle cx="16" cy="9" r="2.4" /><path d="M3.5 18c.5-2.2 2.2-3.4 4.5-3.4s4 1.2 4.5 3.4M12 18c.4-1.8 1.8-3 3.8-3 1.6 0 2.9.8 3.6 2.2" /></svg>
+      Create group
+    </h2>
+    <label for="group-name">Group name</label>
     <input id="group-name" class="field" type="text" placeholder="Enter a group name…" [value]="groupName()" (input)="onGroupName($event)" />
-    <label class="sr" for="group-search">Add members</label>
+    <label for="group-search">Add members</label>
     <input id="group-search" class="search" type="search" placeholder="Search people…" [value]="groupQuery()" (input)="onQuery($event, 'group')" />
     @if (groupMembers().length) {
       <ul class="chips">
         @for (uid of groupMembers(); track uid) {
           <li>
+            <span class="avatar tiny c{{ slot(friendHandle(uid)) }}" aria-hidden="true">{{ letters(friendName(uid)) }}</span>
             {{ friendName(uid) }}
             <button type="button" [attr.aria-label]="'Remove ' + friendName(uid)" (click)="toggleGroupMember(uid)">×</button>
           </li>
         }
       </ul>
     }
-    <ul>
+    <ul class="members">
       @for (friend of groupChoices(); track friend.uid) {
         <li>
           <button
+            class="member"
             type="button"
             [attr.aria-pressed]="groupMembers().includes(friend.uid)"
             (click)="toggleGroupMember(friend.uid)"
           >
-            {{ groupMembers().includes(friend.uid) ? 'Selected' : 'Select' }} {{ friend.nickname }}
+            <span class="avatar tiny c{{ slot(friend.handle || friend.uid) }}" aria-hidden="true">{{ letters(friend.nickname) }}</span>
+            <span class="who">{{ friend.nickname }} @if (friend.handle) { <span class="handle">&#64;{{ friend.handle }}</span> }</span>
+            <span class="member-state">{{ groupMembers().includes(friend.uid) ? 'Selected' : 'Select' }}</span>
           </button>
         </li>
       }
     </ul>
-    <p class="preview">{{ groupHint() }}</p>
-    <button class="btn btn-fill" type="button" [disabled]="!groupReady()" (click)="createGroup()">Create group</button>
+    <p class="hint" id="group-hint">{{ groupHint() }}</p>
+    <button class="btn btn-fill group-create" type="button" [disabled]="!groupReady()" [attr.aria-describedby]="groupHint() ? 'group-hint' : null" (click)="createGroup()">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="2.2" /><circle cx="16" cy="9" r="2.2" /><path d="M4 18c.4-2 2-3.2 4-3.2s3.6 1.2 4 3.2M13 18c.3-1.6 1.6-2.6 3.4-2.6 1.4 0 2.6.7 3.2 2" /></svg>
+      Create group
+    </button>
+    </div>
   </section>
 </div>

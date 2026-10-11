@@ -1,7 +1,17 @@
 import { Component, effect, ElementRef, inject, OnDestroy, signal, viewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ChatDbService } from '../../core/chat-db.service';
 import { Guest, GuestService } from '../../core/guest.service';
+import {
+  PREVIEW_MINA_ID,
+  PREVIEW_NOW,
+  PREVIEW_SELF_ID,
+  previewFriendUids,
+  previewGroupMembers,
+  previewInbox,
+  previewMessages,
+  previewProfiles,
+} from '../../core/preview-fixture';
 import {
   avatarSlot,
   directoryWithoutFriends,
@@ -26,6 +36,8 @@ export class Chat implements OnDestroy {
   protected readonly guests = inject(GuestService);
   private readonly db = inject(ChatDbService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute, { optional: true });
+  private readonly previewing = this.route?.snapshot?.data?.['preview'] === true;
   private readonly log = viewChild<ElementRef<HTMLElement>>('log');
 
   protected readonly profiles = signal<Profile[] | null>(null);
@@ -71,7 +83,14 @@ export class Chat implements OnDestroy {
       tablet.addEventListener('change', apply);
     }
 
+    if (this.previewing) {
+      this.applyPreview();
+    }
+
     effect((onCleanup) => {
+      if (this.previewing) {
+        return;
+      }
       this.retryTick();
       const guest = this.guests.guest();
       this.closeThread();
@@ -129,11 +148,11 @@ export class Chat implements OnDestroy {
   protected directory(): Profile[] {
     const profiles = this.profiles();
     const friends = this.friendUids();
-    const me = this.guests.guest();
-    if (!profiles || !friends || !me) {
+    const meId = this.previewing ? PREVIEW_SELF_ID : this.guests.guest()?.id;
+    if (!profiles || !friends || !meId) {
       return [];
     }
-    return directoryWithoutFriends(profiles, friends, me.id);
+    return directoryWithoutFriends(profiles, friends, meId);
   }
 
   protected friends(): Profile[] {
@@ -159,6 +178,9 @@ export class Chat implements OnDestroy {
   }
 
   protected me(): Profile | undefined {
+    if (this.previewing) {
+      return previewProfiles.find((profile) => profile.uid === PREVIEW_SELF_ID);
+    }
     const id = this.guests.guest()?.id;
     return this.profiles()?.find((profile) => profile.uid === id);
   }
@@ -196,7 +218,14 @@ export class Chat implements OnDestroy {
   }
 
   protected activity(createdAt: number): string {
+    if (this.previewing) {
+      return formatActivityTime(createdAt, PREVIEW_NOW, 'en-US');
+    }
     return formatActivityTime(createdAt);
+  }
+
+  protected friendHandle(uid: string): string {
+    return this.friends().find((friend) => friend.uid === uid)?.handle ?? uid;
   }
 
   protected friendName(uid: string): string {
@@ -280,6 +309,9 @@ export class Chat implements OnDestroy {
   }
 
   protected async earlier(): Promise<void> {
+    if (this.previewing) {
+      return;
+    }
     const rows = this.messages();
     const me = this.guests.guest();
     const conversationId = this.selectedId();
@@ -315,14 +347,31 @@ export class Chat implements OnDestroy {
   }
 
   protected mine(message: ChatMessage): boolean {
-    return messageIsMine(message, this.guests.guest()?.id ?? '');
+    const id = this.previewing ? PREVIEW_SELF_ID : (this.guests.guest()?.id ?? '');
+    return messageIsMine(message, id);
   }
 
   protected when(createdAt: number): string {
+    if (this.previewing) {
+      return formatMessageTime(createdAt, 'en-US');
+    }
     return formatMessageTime(createdAt);
   }
 
   protected openConversation(id: string): void {
+    if (this.previewing) {
+      this.selectedId.set(id);
+      this.messages.set(previewMessages(id));
+      this.draft.set('');
+      this.historyDone.set(true);
+      this.stickToEnd = true;
+      this.showJump.set(false);
+      this.emojiOpen.set(false);
+      this.showPeople.set(false);
+      this.section.set('chats');
+      this.errorMessage.set(null);
+      return;
+    }
     const me = this.guests.guest();
     if (!me) {
       return;
@@ -370,6 +419,9 @@ export class Chat implements OnDestroy {
 
   protected async send(event: Event): Promise<void> {
     event.preventDefault();
+    if (this.previewing) {
+      return;
+    }
     const text = this.draft().trim();
     const conversationId = this.selectedId();
     const me = this.guests.guest();
@@ -389,6 +441,9 @@ export class Chat implements OnDestroy {
   }
 
   protected async add(person: Profile): Promise<void> {
+    if (this.previewing) {
+      return;
+    }
     const me = this.guests.guest();
     if (!me) {
       return;
@@ -402,6 +457,10 @@ export class Chat implements OnDestroy {
   }
 
   protected async removeFriend(uid: string): Promise<void> {
+    if (this.previewing) {
+      this.pendingUnfriend.set(null);
+      return;
+    }
     const me = this.guests.guest();
     if (!me) {
       return;
@@ -417,6 +476,13 @@ export class Chat implements OnDestroy {
   }
 
   protected async chatWith(friendUid: string): Promise<void> {
+    if (this.previewing) {
+      const existing = this.inbox()?.find((item) => item.kind === 'friend' && item.peerUid === friendUid);
+      if (existing) {
+        this.openConversation(existing.id);
+      }
+      return;
+    }
     const me = this.guests.guest();
     if (!me) {
       return;
@@ -432,6 +498,9 @@ export class Chat implements OnDestroy {
   }
 
   protected async createGroup(): Promise<void> {
+    if (this.previewing) {
+      return;
+    }
     const me = this.guests.guest();
     const name = this.groupName().trim();
     if (!me || !name || this.groupMembers().length < 2) {
@@ -449,6 +518,7 @@ export class Chat implements OnDestroy {
     }
   }
 
+  // Preview Leave still calls GuestService.leave(). Clear that stored guest in a later pass.
   protected async leave(): Promise<void> {
     await this.stopPresence?.();
     this.stopPresence = undefined;
@@ -482,6 +552,18 @@ export class Chat implements OnDestroy {
       return target.value;
     }
     return '';
+  }
+
+  private applyPreview(): void {
+    this.inbox.set(previewInbox);
+    this.profiles.set(previewProfiles);
+    this.friendUids.set(previewFriendUids);
+    this.selectedId.set(PREVIEW_MINA_ID);
+    this.messages.set(previewMessages(PREVIEW_MINA_ID));
+    this.groupName.set('');
+    this.groupMembers.set([...previewGroupMembers]);
+    this.historyDone.set(true);
+    this.errorMessage.set(null);
   }
 
   private async openSession(guest: Guest, stops: Array<() => void>, cancelled: () => boolean): Promise<void> {
