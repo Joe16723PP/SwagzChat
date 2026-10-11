@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { routes } from '../../app.routes';
 import { ChatDbService } from '../../core/chat-db.service';
 import { GuestService } from '../../core/guest.service';
@@ -11,6 +11,7 @@ describe('Chat', () => {
   const unsubscribed: string[] = [];
   const sent: string[] = [];
   const createdFriends: string[] = [];
+  const left: string[] = [];
   let connect: () => Promise<void> = async () => undefined;
 
   beforeEach(async () => {
@@ -18,6 +19,7 @@ describe('Chat', () => {
     unsubscribed.length = 0;
     sent.length = 0;
     createdFriends.length = 0;
+    left.length = 0;
     connect = async () => undefined;
     await TestBed.configureTestingModule({
       imports: [Chat],
@@ -27,7 +29,9 @@ describe('Chat', () => {
           provide: GuestService,
           useValue: {
             guest: signal({ id: 'me', name: 'Me' }),
-            leave: () => undefined,
+            leave: () => {
+              left.push('leave');
+            },
           },
         },
         {
@@ -144,13 +148,24 @@ describe('Chat', () => {
     expect(root.textContent).toContain("Couldn't load chats.");
     expect(root.querySelector('.spinner')).toBeNull();
   });
+
+  it('clears the stored guest when Leave is pressed', async () => {
+    const fixture = await setup();
+    const router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    (fixture.nativeElement.querySelector('.leave') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(left).toEqual(['leave']);
+  });
 });
 
 describe('Chat preview', () => {
   const calls: string[] = [];
+  const left: string[] = [];
 
   beforeEach(async () => {
     calls.length = 0;
+    left.length = 0;
     await TestBed.configureTestingModule({
       imports: [Chat],
       providers: [
@@ -163,7 +178,9 @@ describe('Chat preview', () => {
           provide: GuestService,
           useValue: {
             guest: signal({ id: 'me', name: 'Me' }),
-            leave: () => undefined,
+            leave: () => {
+              left.push('leave');
+            },
           },
         },
         {
@@ -272,5 +289,22 @@ describe('Chat preview', () => {
     (root.querySelector('.composer') as HTMLFormElement).requestSubmit();
     await fixture.whenStable();
     expect(calls).toEqual([]);
+  });
+
+  it('leaves the preview without clearing the stored guest', async () => {
+    const fixture = TestBed.createComponent(Chat);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    const urls: string[] = [];
+    vi.spyOn(router, 'navigateByUrl').mockImplementation(async (url) => {
+      urls.push(String(url));
+      return true;
+    });
+    (fixture.nativeElement.querySelector('.leave') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(left).toEqual([]);
+    expect(calls).toEqual([]);
+    expect(urls).toEqual(['/']);
   });
 });

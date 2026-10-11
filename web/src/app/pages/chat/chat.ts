@@ -554,11 +554,12 @@ export class Chat implements OnDestroy {
     }
   }
 
-  // Preview Leave still calls GuestService.leave(). Clear that stored guest in a later pass.
   protected async leave(): Promise<void> {
-    await this.stopPresence?.();
-    this.stopPresence = undefined;
-    this.guests.leave();
+    if (!this.previewing) {
+      await this.stopPresence?.();
+      this.stopPresence = undefined;
+      this.guests.leave();
+    }
     await this.router.navigateByUrl('/');
   }
 
