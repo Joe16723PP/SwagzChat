@@ -25,9 +25,27 @@ app.get('/health', (_req, res) => {
 app.put('/account', asyncRoute(async (req) => {
   const uid = guestId(req.body?.id);
   const name = personName(req.body?.name);
-  await store.ensureAccount(uid, name);
+  const handle = await store.ensureAccount(uid, name);
   await publish({ profiles: true, uids: [uid] });
-  return { id: uid };
+  return { id: uid, handle };
+}));
+
+app.get('/conversations/:id/messages', asyncRoute(async (req) => {
+  const conversationId = guestId(req.params.id);
+  const uid = guestId(req.query.uid);
+  const before = Number(req.query.before);
+  const limit = Number(req.query.limit ?? 50);
+  if (!Number.isFinite(before)) {
+    const error = new Error('Choose an earlier message.');
+    error.status = 400;
+    throw error;
+  }
+  if (!(await store.isMember(conversationId, uid))) {
+    const error = new Error('You are not a member of this conversation.');
+    error.status = 403;
+    throw error;
+  }
+  return { messages: await store.listMessagesBefore(conversationId, before, limit) };
 }));
 
 app.put('/presence', asyncRoute(async (req) => {

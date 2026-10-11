@@ -14,19 +14,28 @@ export function createStore(db) {
       await friends.createIndex({ uid: 1 });
       await inbox.createIndex({ uid: 1 });
       await messages.createIndex({ conversationId: 1, createdAt: 1 });
+      await profiles.createIndex({ handle: 1 }, { unique: true, sparse: true });
     },
 
-    listProfiles() {
-      return profiles
-        .find({})
-        .toArray()
-        .then((rows) =>
-          rows.map((row) => ({
-            uid: row._id,
-            nickname: row.nickname,
-            status: row.status === true,
-          })),
-        );
+    async listProfiles() {
+      const rows = await profiles.find({}).toArray();
+      const taken = new Set(rows.map((row) => row.handle).filter(Boolean));
+      const result = [];
+      for (const row of rows) {
+        let handle = row.handle;
+        if (!handle) {
+          handle = chooseHandle(row.nickname || 'guest', row._id, taken);
+          taken.add(handle);
+          await profiles.updateOne({ _id: row._id }, { $set: { handle } });
+        }
+        result.push({
+          uid: row._id,
+          nickname: row.nickname,
+          handle,
+          status: row.status === true,
+        });
+      }
+      return result;
     },
 
     listFriends(uid) {
@@ -66,43 +75,55 @@ export function createStore(db) {
         .sort({ createdAt: -1 })
         .limit(MESSAGE_PAGE)
         .toArray()
-        .then((rows) =>
-          rows.reverse().map((row) => ({
-            id: row._id,
-            senderUid: row.senderUid,
-            text: row.text,
-            createdAt: row.createdAt,
-          })),
-        );
+        .then((rows) => rows.reverse().map(messageView));
+    },
+
+    listMessagesBefore(conversationId, before, limit) {
+      const size = Math.min(Math.max(limit, 1), MESSAGE_PAGE);
+      return messages
+        .find({ conversationId, createdAt: { $lt: before } })
+        .sort({ createdAt: -1 })
+        .limit(size)
+        .toArray()
+        .then((rows) => rows.reverse().map(messageView));
     },
 
     async ensureAccount(uid, name) {
-      await profiles.updateOne({ _id: uid }, { $set: { nickname: name, status: true } }, { upsert: true });
-      const id = `own_${uid}`;
-      const existing = await conversations.findOne({ _id: id });
-      if (existing) {
-        return id;
+      const existing = await profiles.findOne({ _id: uid });
+      let handle = existing?.handle;
+      if (!handle) {
+        const takenRows = await profiles.find({ handle: { $exists: true } }, { projection: { handle: 1 } }).toArray();
+        handle = chooseHandle(name, uid, new Set(takenRows.map((row) => row.handle)));
       }
-      const ts = Date.now();
-      await conversations.insertOne({
-        _id: id,
-        kind: 'own',
-        ownerUid: uid,
-        createdAt: ts,
-        updatedAt: ts,
-        members: [{ uid, joinedAt: ts }],
-      }).catch(ignoreDuplicate);
-      await inbox.insertOne({
-        _id: `${uid}:${id}`,
-        uid,
-        conversationId: id,
-        kind: 'own',
-        title: 'Notes',
-        lastText: '',
-        updatedAt: ts,
-        unread: 0,
-      }).catch(ignoreDuplicate);
-      return id;
+      await profiles.updateOne(
+        { _id: uid },
+        { $set: { nickname: name, handle, status: true } },
+        { upsert: true },
+      );
+      const id = `own_${uid}`;
+      const ownChat = await conversations.findOne({ _id: id });
+      if (!ownChat) {
+        const ts = Date.now();
+        await conversations.insertOne({
+          _id: id,
+          kind: 'own',
+          ownerUid: uid,
+          createdAt: ts,
+          updatedAt: ts,
+          members: [{ uid, joinedAt: ts }],
+        }).catch(ignoreDuplicate);
+        await inbox.insertOne({
+          _id: `${uid}:${id}`,
+          uid,
+          conversationId: id,
+          kind: 'own',
+          title: 'Notes',
+          lastText: '',
+          updatedAt: ts,
+          unread: 0,
+        }).catch(ignoreDuplicate);
+      }
+      return handle;
     },
 
     async setStatus(uid, status) {
@@ -255,6 +276,42 @@ function inboxFields(conversation, memberUid, memberUids) {
     return { kind: 'group', title: conversation.name || 'Group' };
   }
   return { kind: 'friend', peerUid: memberUids.find((uid) => uid !== memberUid) };
+}
+
+function messageView(row) {
+  return {
+    id: row._id,
+    senderUid: row.senderUid,
+    text: row.text,
+    createdAt: row.createdAt,
+  };
+}
+
+export function chooseHandle(name, uid, taken) {
+  let base = String(name ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (base.length < 3) {
+    base = 'guest';
+  }
+  base = base.slice(0, 16);
+  if (!taken.has(base)) {
+    return base;
+  }
+  const idPart = String(uid ?? '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 4) || '0000';
+  const room = Math.max(1, 20 - idPart.length - 1);
+  const stem = `${base.slice(0, room)}_${idPart}`;
+  if (!taken.has(stem)) {
+    return stem;
+  }
+  let n = 2;
+  while (n < 1000) {
+    const suffix = String(n);
+    const candidate = `${stem.slice(0, 20 - suffix.length)}${suffix}`;
+    if (!taken.has(candidate)) {
+      return candidate;
+    }
+    n += 1;
+  }
+  return stem;
 }
 
 function fail(status, message) {

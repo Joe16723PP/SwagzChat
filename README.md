@@ -1,27 +1,34 @@
 # SwagzChat
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.0.2.
+Angular 22 chat client in `web/`, with a Node service and MongoDB in `server/`.
 
-## Development server
+## Run locally
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Start MongoDB and the API:
 
-## Code scaffolding
+```bash
+docker compose up --build
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+In another terminal, from `web/`, use Node 22:
 
-## Build
+```bash
+npm start
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Open http://127.0.0.1:4200, enter a name, and the chat workspace opens. The API is http://127.0.0.1:3000.
 
-## Running unit tests
+## Checks
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+From `web/`:
 
-## Running end-to-end tests
+```bash
+npm test -- --watch=false
+npm run build
+```
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+From `server/`:
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+```bash
+node --test src/handle.test.js
+```

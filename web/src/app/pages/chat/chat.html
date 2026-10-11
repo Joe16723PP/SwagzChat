@@ -1,50 +1,137 @@
 <header class="bar">
-  <h1>SwagzChat</h1>
+  <div class="brand">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="28" height="28">
+        <rect width="32" height="32" rx="8" fill="currentColor" />
+        <path d="M8 11h10a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3H14l-4 3v-3H8a3 3 0 0 1-3-3v-4a3 3 0 0 1 3-3z" fill="#fff" />
+      </svg>
+    </span>
+    <h1>SwagzChat</h1>
+    <span class="chip">Demo account</span>
+  </div>
   <div class="bar-actions">
-    @if (compact() && !selected()) {
+    @if (railCollapsed() && !(compact() && selected())) {
       <button matButton="outlined" type="button" (click)="showPeople.set(!showPeople())">
-        {{ showPeople() ? 'Chats' : 'People' }}
+        {{ showPeople() ? 'Chats' : 'Friends' }}
       </button>
     }
-    @if (compact() && selected()) {
-      <button matButton="outlined" type="button" (click)="backToList()">Back</button>
-    }
-    <span>{{ guests.guest()?.name }}</span>
-    <button matButton="outlined" type="button" (click)="leave()">Leave</button>
+    <div class="identity">
+      <span class="avatar c{{ slot(me()?.handle || guests.guest()?.id || 'me') }}" aria-hidden="true">{{ letters(me()?.nickname || guests.guest()?.name || '?') }}</span>
+      <span class="identity-copy">
+        <span class="who">{{ me()?.nickname || guests.guest()?.name }}</span>
+        @if (me()?.handle) {
+          <span class="handle">&#64;{{ me()?.handle }}</span>
+        }
+      </span>
+      <span class="dot" [class.on]="me()?.status" aria-hidden="true"></span>
+      <button matButton="text" type="button" aria-label="Profile menu" [attr.aria-expanded]="profileOpen()" (click)="profileOpen.set(!profileOpen())">▾</button>
+      @if (profileOpen()) {
+        <div class="menu" role="menu">
+          <p>{{ me()?.nickname || guests.guest()?.name }}</p>
+          @if (me()?.handle) {
+            <p class="handle">&#64;{{ me()?.handle }}</p>
+          }
+          <button matButton="text" type="button" (click)="leave()">Leave</button>
+        </div>
+      }
+    </div>
+    <button class="leave" matButton="outlined" type="button" (click)="leave()">Leave</button>
   </div>
 </header>
 
 @if (errorMessage()) {
-  <p class="banner" role="alert">{{ errorMessage() }}</p>
+  <p class="banner" role="alert">
+    {{ errorMessage() }}
+    <button matButton="text" type="button" (click)="retry()">Retry</button>
+  </p>
 }
+<p class="sr" aria-live="polite">{{ errorMessage() }}</p>
 
 <div class="shell" [class.thread-open]="!!selected()" [class.people-open]="showPeople()">
-  <section class="pane friends" aria-label="Chats">
-    <h2>Chats</h2>
-    @if (inbox() === null && !errorMessage()) {
-      <mat-spinner diameter="28" />
-    } @else if (inbox() === null) {
-      <p>Couldn't load chats.</p>
-    } @else if (conversations().length === 0) {
-      <p>No chats yet.</p>
+  <section class="pane list" aria-label="Conversations">
+    <label class="sr" for="list-search">{{ section() === 'chats' ? 'Search conversations' : 'Search people' }}</label>
+    <input
+      id="list-search"
+      class="search"
+      type="search"
+      [placeholder]="section() === 'chats' ? 'Search conversations…' : 'Search people…'"
+      [value]="chatQuery()"
+      (input)="onQuery($event, 'chat')"
+    />
+    <nav class="nav" aria-label="Workspace">
+      <button type="button" [attr.aria-current]="section() === 'chats' ? 'page' : null" (click)="showChats()">
+        <span aria-hidden="true">💬</span> Chats
+      </button>
+      <button type="button" [attr.aria-current]="section() === 'people' ? 'page' : null" (click)="showDirectory()">
+        <span aria-hidden="true">👤</span> People
+      </button>
+    </nav>
+
+    @if (section() === 'chats') {
+      <h2>Conversations</h2>
+      @if (inbox() === null && !errorMessage()) {
+        <mat-spinner diameter="28" />
+      } @else if (inbox() === null) {
+        <p>Couldn't load chats.</p>
+      } @else if (conversations().length === 0) {
+        <p>No chats yet.</p>
+      } @else {
+        <ul>
+          @for (item of conversations(); track item.id) {
+            <li>
+              <button
+                type="button"
+                class="person"
+                [attr.aria-pressed]="selectedId() === item.id"
+                (click)="openConversation(item.id)"
+              >
+                <span class="avatar c{{ slot(colorKey(item)) }}" aria-hidden="true">{{ letters(label(item)) }}</span>
+                <span class="person-copy">
+                  <span class="who">
+                    {{ label(item) }}
+                    @if (item.kind === 'friend' && peer(item)?.handle) {
+                      <span class="handle">&#64;{{ peer(item)?.handle }}</span>
+                    }
+                  </span>
+                  @if (item.lastText) {
+                    <span class="preview">{{ item.lastText }}</span>
+                  }
+                </span>
+                <span class="meta">
+                  @if (item.updatedAt) {
+                    <time>{{ activity(item.updatedAt) }}</time>
+                  }
+                  @if (item.unread > 0) {
+                    <span class="unread">{{ item.unread }}</span>
+                  }
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
     } @else {
-      <ul>
-        @for (item of conversations(); track item.id) {
-          <li>
-            <button
-              type="button"
-              class="person"
-              [attr.aria-pressed]="selectedId() === item.id"
-              (click)="openConversation(item.id)"
-            >
-              <span class="who">{{ label(item) }}</span>
-              @if (item.lastText) {
-                <span class="presence">{{ item.lastText }}</span>
-              }
-            </button>
-          </li>
-        }
-      </ul>
+      <h2>People</h2>
+      @if (profiles() === null && !errorMessage()) {
+        <mat-spinner diameter="28" />
+      } @else if (profiles() === null) {
+        <p>Couldn't load people.</p>
+      } @else if (visibleDirectory().length === 0) {
+        <p>No one else to add.</p>
+      } @else {
+        <ul>
+          @for (person of visibleDirectory(); track person.uid) {
+            <li class="directory-row">
+              <span class="avatar c{{ slot(person.handle || person.uid) }}" aria-hidden="true">{{ letters(person.nickname) }}</span>
+              <span class="person-copy">
+                <span class="who">{{ person.nickname }} @if (person.handle) { <span class="handle">&#64;{{ person.handle }}</span> }</span>
+                <span class="preview"><span class="dot" [class.on]="person.status" aria-hidden="true"></span> {{ presenceText(person) }}</span>
+              </span>
+              <button matButton="outlined" type="button" (click)="add(person)">Add</button>
+            </li>
+          }
+        </ul>
+      }
     }
   </section>
 
@@ -52,13 +139,38 @@
     @if (!selected()) {
       <p class="empty">Choose a chat.</p>
     } @else {
-      <h2>{{ label(selected()!) }}</h2>
-      <div class="log" #log>
+      <header class="thread-head">
+        @if (compact()) {
+          <button matButton="outlined" type="button" (click)="backToList()">Back</button>
+        }
+        <span class="avatar c{{ slot(colorKey(selected()!)) }}" aria-hidden="true">{{ letters(label(selected()!)) }}</span>
+        <div>
+          <h2>
+            {{ label(selected()!) }}
+            @if (selected()!.kind === 'friend' && peer(selected())?.handle) {
+              <span class="handle">&#64;{{ peer(selected())?.handle }}</span>
+            }
+          </h2>
+          @if (selected()!.kind === 'friend') {
+            <p class="preview"><span class="dot" [class.on]="peer(selected())?.status" aria-hidden="true"></span> {{ presenceText(peer(selected())) }}</p>
+          }
+        </div>
+        <div class="thread-tools">
+          <button type="button" class="icon" aria-disabled="true" aria-label="Calls are not available in this demo" title="Calls are not available in this demo">☎</button>
+          <button type="button" class="icon" aria-disabled="true" aria-label="Calls are not available in this demo" title="Calls are not available in this demo">▣</button>
+          <button type="button" class="icon" aria-disabled="true" aria-label="More actions are not available in this demo" title="More actions are not available in this demo">⋯</button>
+        </div>
+      </header>
+      <p class="disclosure"><span aria-hidden="true">i</span> Demo chat · names are not verified</p>
+      <div class="log" #log (scroll)="onLogScroll()">
         @if (messages() === null) {
           <mat-spinner diameter="28" />
         } @else if (messages()!.length === 0) {
           <p>No messages yet.</p>
         } @else {
+          @if (messages()!.length >= 50 && !historyDone()) {
+            <button matButton="text" type="button" (click)="earlier()" [disabled]="loadingEarlier()">Load earlier messages</button>
+          }
           <ol>
             @for (message of messages(); track message.id) {
               <li [class.mine]="mine(message)" [class.theirs]="!mine(message)">
@@ -69,63 +181,97 @@
           </ol>
         }
       </div>
+      @if (showJump()) {
+        <button matButton="outlined" type="button" (click)="jumpToEnd()">New messages</button>
+      }
       <form class="composer" (submit)="send($event)">
         <label class="sr" for="draft">Message</label>
-        <input id="draft" type="text" [value]="draft()" (input)="onDraft($event)" autocomplete="off" />
-        <button matButton="filled" type="submit" [disabled]="sending() || !draft().trim()">Send</button>
+        @if (emojiOpen()) {
+          <div class="emoji" role="listbox" aria-label="Emoji">
+            @for (symbol of emoji; track symbol) {
+              <button type="button" (click)="insertEmoji(symbol)">{{ symbol }}</button>
+            }
+          </div>
+        }
+        <button type="button" class="icon" aria-label="Insert emoji" [attr.aria-expanded]="emojiOpen()" (click)="toggleEmoji()">☺</button>
+        <textarea
+          id="draft"
+          rows="1"
+          placeholder="Write a message…"
+          [value]="draft()"
+          (input)="onDraft($event)"
+          (keydown)="onComposerKey($event)"
+        ></textarea>
+        <button type="button" class="icon" aria-disabled="true" aria-label="Attachments are not available in this demo" title="Attachments are not available in this demo">📎</button>
+        <button type="button" class="icon" aria-disabled="true" aria-label="Images are not available in this demo" title="Images are not available in this demo">🖼</button>
+        <button class="send" matButton="filled" type="submit" [disabled]="sending() || !draft().trim()" aria-label="Send">➤</button>
       </form>
     }
   </section>
 
-  <section class="pane people" aria-label="People">
+  <section class="pane rail" aria-label="Friends">
     <h2>Friends</h2>
+    <label class="sr" for="friend-search">Search people</label>
+    <input id="friend-search" class="search" type="search" placeholder="Search people…" [value]="friendQuery()" (input)="onQuery($event, 'friend')" />
     @if (friendUids() === null && !errorMessage()) {
       <mat-spinner diameter="28" />
     } @else if (friendUids() === null) {
       <p>Couldn't load friends.</p>
-    } @else if (friends().length === 0) {
+    } @else if (visibleFriends().length === 0) {
       <p>No friends yet.</p>
     } @else {
       <ul>
-        @for (friend of friends(); track friend.uid) {
-          <li>
-            <span class="who">{{ friend.nickname }}</span>
-            <span class="presence">{{ friend.status ? 'Online' : 'Offline' }}</span>
-            <button matButton="outlined" type="button" (click)="chatWith(friend.uid)">Chat</button>
-            <button
-              matButton="text"
-              type="button"
-              [attr.aria-pressed]="groupMembers().includes(friend.uid)"
-              (click)="toggleGroupMember(friend.uid)"
-            >
-              {{ groupMembers().includes(friend.uid) ? 'In group' : 'Add to group' }}
-            </button>
-            <button matButton="text" type="button" (click)="removeFriend(friend.uid)">Unfriend</button>
+        @for (friend of visibleFriends(); track friend.uid) {
+          <li class="directory-row">
+            <span class="avatar c{{ slot(friend.handle || friend.uid) }}" aria-hidden="true">{{ letters(friend.nickname) }}</span>
+            <span class="person-copy">
+              <span class="who">{{ friend.nickname }} @if (friend.handle) { <span class="handle">&#64;{{ friend.handle }}</span> }</span>
+              <span class="preview"><span class="dot" [class.on]="friend.status" aria-hidden="true"></span> {{ presenceText(friend) }}</span>
+            </span>
+            <button matButton="outlined" type="button" (click)="chatWith(friend.uid)">Message</button>
+            @if (pendingUnfriend() === friend.uid) {
+              <span class="confirm">
+                Unfriend {{ friend.nickname }}? The conversation stays.
+                <button matButton="text" type="button" (click)="removeFriend(friend.uid)">Unfriend</button>
+                <button matButton="text" type="button" (click)="cancelUnfriend()">Cancel</button>
+              </span>
+            } @else {
+              <button matButton="text" type="button" [attr.aria-label]="'More actions for ' + friend.nickname" (click)="askUnfriend(friend.uid)">⋯</button>
+            }
           </li>
         }
       </ul>
-      <label class="sr" for="group-name">Group name</label>
-      <input id="group-name" class="field" type="text" placeholder="Group name" [value]="groupName()" (input)="onGroupName($event)" />
-      <button matButton="filled" type="button" (click)="createGroup()">Create group</button>
     }
 
-    <h2>People</h2>
-    @if (profiles() === null && !errorMessage()) {
-      <mat-spinner diameter="28" />
-    } @else if (profiles() === null) {
-      <p>Couldn't load people.</p>
-    } @else if (directory().length === 0) {
-      <p>No one else to add.</p>
-    } @else {
-      <ul>
-        @for (person of directory(); track person.uid) {
+    <h2>Create group</h2>
+    <label class="sr" for="group-name">Group name</label>
+    <input id="group-name" class="field" type="text" placeholder="Enter a group name…" [value]="groupName()" (input)="onGroupName($event)" />
+    <label class="sr" for="group-search">Add members</label>
+    <input id="group-search" class="search" type="search" placeholder="Search people…" [value]="groupQuery()" (input)="onQuery($event, 'group')" />
+    @if (groupMembers().length) {
+      <ul class="chips">
+        @for (uid of groupMembers(); track uid) {
           <li>
-            <span class="who">{{ person.nickname }}</span>
-            <span class="presence">{{ person.status ? 'Online' : 'Offline' }}</span>
-            <button matButton="outlined" type="button" (click)="add(person)">Add</button>
+            {{ friendName(uid) }}
+            <button type="button" [attr.aria-label]="'Remove ' + friendName(uid)" (click)="toggleGroupMember(uid)">×</button>
           </li>
         }
       </ul>
     }
+    <ul>
+      @for (friend of groupChoices(); track friend.uid) {
+        <li>
+          <button
+            type="button"
+            [attr.aria-pressed]="groupMembers().includes(friend.uid)"
+            (click)="toggleGroupMember(friend.uid)"
+          >
+            {{ groupMembers().includes(friend.uid) ? 'Selected' : 'Select' }} {{ friend.nickname }}
+          </button>
+        </li>
+      }
+    </ul>
+    <p class="preview">{{ groupHint() }}</p>
+    <button matButton="filled" type="button" [disabled]="!groupReady()" (click)="createGroup()">Create group</button>
   </section>
 </div>

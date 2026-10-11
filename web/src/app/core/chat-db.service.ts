@@ -119,6 +119,20 @@ export class ChatDbService {
     await request(`/conversations/${conversationId}/read`, 'POST', { uid });
   }
 
+  async loadEarlier(conversationId: string, uid: string, before: number): Promise<ChatMessage[]> {
+    const params = new URLSearchParams({
+      uid,
+      before: String(before),
+      limit: String(MESSAGE_PAGE),
+    });
+    const response = await fetch(`${apiOrigin}/conversations/${conversationId}/messages?${params}`);
+    if (!response.ok) {
+      throw new Error('Earlier messages could not be loaded.');
+    }
+    const body = (await response.json()) as { messages?: ChatMessage[] };
+    return body.messages ?? [];
+  }
+
   private connect(uid: string): Promise<void> {
     if (this.socket?.readyState === WebSocket.OPEN && this.uid === uid) {
       return Promise.resolve();

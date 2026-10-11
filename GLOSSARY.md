@@ -8,6 +8,10 @@ The words for a chat between people in SwagzChat.
 A person who opens SwagzChat with a name and no account. The same browser keeps that guest.
 _Avoid_: Account, signed-in user
 
+**Handle**:
+The stable short name shown after @ that tells two guests with the same display name apart. It is chosen once and stays if the display name changes.
+_Avoid_: Username, account name, nickname
+
 **Conversation**:
 A single chat history with a fixed kind and a list of members.
 _Avoid_: Channel, room, thread, chat log

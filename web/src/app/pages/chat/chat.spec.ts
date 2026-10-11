@@ -101,9 +101,15 @@ describe('Chat', () => {
   it('sends the trimmed draft and lists people who are not friends', async () => {
     const fixture = await setup();
     const root = fixture.nativeElement as HTMLElement;
+    (root.querySelector('nav button:last-child') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
     expect(root.textContent).toContain('Cy');
     expect([...root.querySelectorAll('button')].filter((button) => button.textContent?.trim() === 'Add')).toHaveLength(1);
 
+    (root.querySelector('nav button') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
     (root.querySelectorAll('.person')[1] as HTMLButtonElement).click();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -119,7 +125,7 @@ describe('Chat', () => {
   it('creates a friend conversation when that pair has none yet', async () => {
     const fixture = await setup();
     const chatButtons = [...fixture.nativeElement.querySelectorAll('button')].filter(
-      (button) => (button as HTMLButtonElement).textContent?.trim() === 'Chat',
+      (button) => (button as HTMLButtonElement).textContent?.trim() === 'Message',
     ) as HTMLButtonElement[];
     chatButtons[0].click();
     await fixture.whenStable();

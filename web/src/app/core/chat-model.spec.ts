@@ -1,4 +1,4 @@
-import { directoryWithoutFriends, friendUidFromEdge, inboxLabel, messageIsMine, sortInbox, type InboxItem, type Profile } from './chat-model';
+import { directoryWithoutFriends, formatActivityTime, inboxLabel, initials, messageIsMine, sortInbox, type InboxItem, type Profile } from './chat-model';
 
 const ann: Profile = { uid: 'ann', nickname: 'Ann', status: true };
 const bob: Profile = { uid: 'bob', nickname: 'Bob', status: false };
@@ -24,9 +24,14 @@ describe('conversation model', () => {
     expect(directoryWithoutFriends([ann, bob, cy], ['bob'], 'ann').map((profile) => profile.uid)).toEqual(['cy']);
   });
 
-  it('reads a friend uid from a new edge or a legacy edge', () => {
-    expect(friendUidFromEdge('bob', true)).toBe('bob');
-    expect(friendUidFromEdge('bob', { uid: 'bob', email: 'bob@example.com' })).toBe('bob');
+  it('formats recent activity and initials', () => {
+    const now = new Date(2026, 5, 11, 10, 30).getTime();
+    const yesterday = new Date(2026, 5, 10, 9, 0).getTime();
+    expect(formatActivityTime(yesterday, now)).toBe('Yesterday');
+    expect(initials('Mina Chen')).toBe('MC');
+  });
+
+  it('knows when a message belongs to the current guest', () => {
     expect(messageIsMine({ id: '1', senderUid: 'ann', text: 'hi', createdAt: 1 }, 'ann')).toBe(true);
   });
 });

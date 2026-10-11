@@ -3,6 +3,7 @@ export type ConversationKind = 'own' | 'friend' | 'group';
 export interface Profile {
   uid: string;
   nickname: string;
+  handle?: string;
   status: boolean;
 }
 
@@ -24,79 +25,6 @@ export interface ChatMessage {
 }
 
 export const MESSAGE_PAGE = 50;
-
-export function nicknameFromEmail(email: string): string {
-  const local = email.split('@')[0]?.trim();
-  return local || email;
-}
-
-export function ownConversationId(uid: string): string {
-  return `own_${uid}`;
-}
-
-export function asProfile(key: string, value: unknown): Profile | null {
-  if (!value || typeof value !== 'object') {
-    return null;
-  }
-  const row = value as Record<string, unknown>;
-  const nickname = typeof row['nickname'] === 'string' ? row['nickname'].trim() : '';
-  if (!nickname) {
-    return null;
-  }
-  return {
-    uid: key,
-    nickname,
-    status: row['status'] === true,
-  };
-}
-
-export function friendUidFromEdge(key: string, value: unknown): string | null {
-  if (value === true) {
-    return key;
-  }
-  if (value && typeof value === 'object' && typeof (value as { uid?: unknown }).uid === 'string') {
-    return (value as { uid: string }).uid;
-  }
-  return null;
-}
-
-export function asInboxItem(id: string, value: unknown): InboxItem | null {
-  if (!value || typeof value !== 'object') {
-    return null;
-  }
-  const row = value as Record<string, unknown>;
-  const kind = row['kind'];
-  if (kind !== 'own' && kind !== 'friend' && kind !== 'group') {
-    return null;
-  }
-  return {
-    id,
-    kind,
-    title: typeof row['title'] === 'string' ? row['title'] : undefined,
-    peerUid: typeof row['peerUid'] === 'string' ? row['peerUid'] : undefined,
-    lastText: typeof row['lastText'] === 'string' ? row['lastText'] : '',
-    updatedAt: typeof row['updatedAt'] === 'number' ? row['updatedAt'] : 0,
-    unread: typeof row['unread'] === 'number' ? row['unread'] : 0,
-  };
-}
-
-export function asMessage(id: string, value: unknown): ChatMessage | null {
-  if (!value || typeof value !== 'object') {
-    return null;
-  }
-  const row = value as Record<string, unknown>;
-  const text = typeof row['text'] === 'string' ? row['text'] : '';
-  const senderUid = typeof row['senderUid'] === 'string' ? row['senderUid'] : '';
-  if (!text || !senderUid) {
-    return null;
-  }
-  return {
-    id,
-    senderUid,
-    text,
-    createdAt: typeof row['createdAt'] === 'number' ? row['createdAt'] : 0,
-  };
-}
 
 export function sortInbox(items: readonly InboxItem[]): InboxItem[] {
   return [...items].sort((a, b) => {
@@ -137,5 +65,41 @@ export function formatMessageTime(createdAt: number): string {
   if (!createdAt) {
     return '';
   }
-  return new Intl.DateTimeFormat(undefined, { dateStyle: 'short', timeStyle: 'short' }).format(createdAt);
+  return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(createdAt);
+}
+
+export function formatActivityTime(createdAt: number, now = Date.now()): string {
+  if (!createdAt) {
+    return '';
+  }
+  const when = new Date(createdAt);
+  const current = new Date(now);
+  const start = (value: Date) => new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
+  const days = Math.round((start(current) - start(when)) / 86_400_000);
+  if (days <= 0) {
+    return formatMessageTime(createdAt);
+  }
+  if (days === 1) {
+    return 'Yesterday';
+  }
+  if (days <= 6) {
+    return new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(when);
+  }
+  return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(when);
+}
+
+export function initials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (!words.length) {
+    return '?';
+  }
+  return words
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
+export function avatarSlot(key: string): number {
+  const sum = [...key].reduce((total, char) => total + char.charCodeAt(0), 0);
+  return (sum % 8) + 1;
 }

@@ -12,6 +12,5 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadComponent: () => import('./pages/chat/chat').then((m) => m.Chat),
   },
-  { path: 'login', redirectTo: '' },
   { path: '**', redirectTo: '' },
 ];
